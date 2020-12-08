@@ -19,7 +19,8 @@
     "build": "node scripts/build.js",
     "format": "find . -name \"*.js\" | grep -v node_modules | grep -v build | xargs prettier --write",
     "format:log": "find . -name \"*.js\" | grep -v node_modules | grep -v build | xargs prettier",
-    "inferschema:write": "node scripts/inferSchema.js"
+    "inferschema:write": "node scripts/inferSchema.js",
+    "crawl": "cd crawler && yarn start"
   },
   "husky": {
     "hooks": {

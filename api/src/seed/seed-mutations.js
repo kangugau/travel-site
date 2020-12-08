@@ -1,99 +1,68 @@
-const fetch = require('node-fetch')
-const parse = require('csv-parse/lib/sync')
 const { gql } = require('@apollo/client')
+const data = require('../../../crawler/data/attractions-hanoi.json')
 
-export const getSeedMutations = async () => {
-  const res = await fetch(
-    'https://cdn.neo4jlabs.com/data/grandstack_businesses.csv'
-  )
-  const body = await res.text()
-  const records = parse(body, { columns: true })
-  const mutations = generateMutations(records)
-
+export const getSeedMutations = () => {
+  const mutations = generateMutations(data)
+  // const mutations = generateMutations(records)
   return mutations
 }
-
-const generateMutations = (records) => {
-  return records.map((rec) => {
-    Object.keys(rec).map((k) => {
-      if (k === 'latitude' || k === 'longitude' || k === 'reviewStars') {
-        rec[k] = parseFloat(rec[k])
-      } else if (k === 'reviewDate') {
-        const dateParts = rec[k].split('-')
-        rec['year'] = parseInt(dateParts[0])
-        rec['month'] = parseInt(dateParts[1])
-        rec['day'] = parseInt(dateParts[2])
-      } else if (k === 'categories') {
-        rec[k] = rec[k].split(',')
+const generateMutations = (data) => {
+  const attractions = data.attractions
+  const attractionMutations = attractions.map((attraction) => {
+    // const attractionCategories = attractions.categoryIds
+    let variables = {
+      attractionId: attraction.attractionId,
+      name: attraction.location.name,
+      address: attraction.location.localizedStreetAddress.fullAddress,
+    }
+    if (attraction.longitude && attraction.latitude) {
+      variables.location = {
+        longitude: attraction.longitude,
+        latitude: attraction.latitude,
       }
-    })
-
+    }
     return {
       mutation: gql`
-        mutation mergeReviews(
-          $userId: ID!
-          $userName: String
-          $businessId: ID!
-          $businessName: String
-          $businessCity: String
-          $businessState: String
-          $businessAddress: String
-          $latitude: Float
-          $longitude: Float
-          $reviewId: ID!
-          $reviewText: String
-          $year: Int
-          $month: Int
-          $day: Int
-          $reviewStars: Float
-          $categories: [String!]!
+        mutation mergeAttractions(
+          $attractionId: ID!
+          $name: String
+          $location: _Neo4jPointInput
+          $address: String
         ) {
-          user: MergeUser(userId: $userId, name: $userName) {
-            userId
-          }
-          business: MergeBusiness(
-            businessId: $businessId
-            name: $businessName
-            address: $businessAddress
-            city: $businessCity
-            state: $businessState
-            location: { latitude: $latitude, longitude: $longitude }
+          MergeAttraction(
+            attractionId: $attractionId
+            name: $name
+            location: $location
+            address: $address
           ) {
-            businessId
-          }
-          review: MergeReview(
-            reviewId: $reviewId
-            text: $reviewText
-            date: { year: $year, month: $month, day: $day }
-            stars: $reviewStars
-          ) {
-            reviewId
-          }
-          reviewUser: MergeReviewUser(
-            from: { userId: $userId }
-            to: { reviewId: $reviewId }
-          ) {
-            from {
-              userId
-            }
-          }
-          reviewBusiness: MergeReviewBusiness(
-            from: { reviewId: $reviewId }
-            to: { businessId: $businessId }
-          ) {
-            from {
-              reviewId
-            }
-          }
-          businessCategories: mergeBusinessCategory(
-            categories: $categories
-            businessId: $businessId
-          ) {
-            businessId
+            attractionId
+            name
           }
         }
       `,
-      variables: rec,
+      variables: variables,
     }
   })
+  // const categories = data.filters.find(
+  //   (filter) => filter.filterType === 'ATTRACTION_CATEGORY'
+  // ).choices
+  // const categoryMutations = categories.map((category) => {
+  //   return {
+  //     mutation: gql`
+  //       mutation mergeCategories($categoryId: ID!, $name: String) {
+  //         mergeCategory(categoryId: $categoryId, name: $name) {
+  //           categoryId
+  //           name
+  //         }
+  //       }
+  //     `,
+  //     variables: {
+  //       categoryId: category.value,
+  //       name: category.label,
+  //     },
+  //   }
+  // })
+  return attractionMutations
 }
+
+getSeedMutations()

@@ -2,9 +2,6 @@ const query = `query GetAttractions($categories: [Int], $characterLimit: Long, $
   attractionsResponse: ExpPresentationService_getAttractions(request: [{categories: $categories, currencyCode: $currencyCode, facetsEnabled: [ATTRACTION_AIRPORT_ID, ATTRACTION_CATEGORY, ATTRACTION_NEIGHBORHOOD, ATTRACTION_THEME_PARK_ID, ATTRACTION_TYPE, ATTRACTION_TAG], excludeSuppliers: $excludeSuppliers, geoId: $geoId, limit: $limit, neighborhoods: $neighborhoods, offset: $offset, sortOrder: $sortOrder, tags: $tags, types: $types, waypoint: $waypoint}]) {
     attractions {
       attractionId: locationId
-      attractionProductListUrl {
-        url @encode
-      }
       categoryIds
       typeIds
       tagIds
@@ -59,13 +56,11 @@ const query = `query GetAttractions($categories: [Int], $characterLimit: Long, $
 }
 
 fragment TaxonomyFilter on ExpPresentationService_AttractionTaxonomyFilter {
-  count
   value: filter
   label
 }
 
 fragment NeighborhoodFilter on ExpPresentationService_AttractionLocationFilter {
-  count
   value: filter
   location {
     name
@@ -73,7 +68,6 @@ fragment NeighborhoodFilter on ExpPresentationService_AttractionLocationFilter {
 }
 
 fragment TagFilter on ExpPresentationService_AttractionTagFilter {
-  count
   value: filter
   tagId
   label

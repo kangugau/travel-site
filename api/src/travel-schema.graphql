@@ -1,0 +1,38 @@
+
+type City {
+  cityId: ID!
+  name: String
+}
+
+type Attraction {
+  attractionId: ID!
+  name: String
+  location: Point
+  address: String
+  photos: [Photo] @relation(name: "HAS_PHOTO", direction: "OUT")
+  city: [City] @relation(name: "IN_CITY", direction: "OUT")
+  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
+  types: [Type] @relation(name: "IN_TYPE", direction: "OUT")
+  tags: [Tag] @relation(name: "HAS_TAG", direction: "OUT")
+}
+
+type Photo {
+  width: Int
+  height: Int 
+  url: String!
+}
+
+type Category {
+  categoryId: ID!
+  name: String
+}
+
+type Type {
+  typeId: ID!
+  name: String
+}
+
+type Tag {
+  tagId: ID!
+  name: String
+}
