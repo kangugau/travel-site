@@ -72,6 +72,7 @@ fragment TagFilter on ExpPresentationService_AttractionTagFilter {
   tagId
   label
 }`
+
 const variables = {
   currencyCode: 'VND',
   excludeSuppliers: true,

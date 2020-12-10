@@ -20,7 +20,8 @@ const client = new ApolloClient({
 
 const runMutations = async () => {
   const mutations = getSeedMutations()
-  return Promise.all(
+  let count = 0
+  await Promise.all(
     mutations.map(({ mutation, variables }) => {
       return client
         .mutate({
@@ -33,6 +34,48 @@ const runMutations = async () => {
         })
     })
   )
+  await Promise.all(
+    mutations.map(async ({ categoryMutations }) => {
+      return Promise.all(
+        categoryMutations.map(({ mutation, variables }) => {
+          count++
+          return client.mutate({
+            mutation,
+            variables,
+          })
+        })
+      )
+    })
+  )
+  await Promise.all(
+    mutations.map(async ({ typeMutations }) => {
+      return Promise.all(
+        typeMutations.map(({ mutation, variables }) => {
+          count++
+          return client.mutate({
+            mutation,
+            variables,
+          })
+        })
+      )
+    })
+  )
+
+  // await each group of mutation due to large amount of concurrent connections
+  for (let i = 0; i < mutations.length; i++) {
+    const { tagMutations } = mutations[i]
+    await Promise.all(
+      tagMutations.map(({ mutation, variables }) => {
+        count++
+        return client.mutate({
+          mutation,
+          variables,
+        })
+      })
+    )
+  }
+
+  console.log(count)
 }
 
 runMutations()

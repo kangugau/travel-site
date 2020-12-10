@@ -21,6 +21,90 @@ const generateMutations = (data) => {
         latitude: attraction.latitude,
       }
     }
+    let categoryMutations = attraction.categoryIds.map((categoryId) => {
+      return {
+        mutation: gql`
+          mutation mergeCategories($categoryId: ID!, $attractionId: ID!) {
+            MergeCategory(categoryId: $categoryId) {
+              categoryId
+              name
+            }
+            MergeAttractionCategories(
+              from: { attractionId: $attractionId }
+              to: { categoryId: $categoryId }
+            ) {
+              from {
+                attractionId
+              }
+              to {
+                categoryId
+              }
+            }
+          }
+        `,
+        variables: {
+          categoryId: categoryId,
+          attractionId: attraction.attractionId,
+        },
+      }
+    })
+
+    let typeMutations = attraction.typeIds.map((typeId) => {
+      return {
+        mutation: gql`
+          mutation mergeTypes($typeId: ID!, $attractionId: ID!) {
+            MergeType(typeId: $typeId) {
+              typeId
+              name
+            }
+            MergeAttractionTypes(
+              from: { attractionId: $attractionId }
+              to: { typeId: $typeId }
+            ) {
+              from {
+                attractionId
+              }
+              to {
+                typeId
+              }
+            }
+          }
+        `,
+        variables: {
+          typeId: typeId,
+          attractionId: attraction.attractionId,
+        },
+      }
+    })
+
+    let tagMutations = attraction.tagIds.map((tagId) => {
+      return {
+        mutation: gql`
+          mutation mergeTags($tagId: ID!, $attractionId: ID!) {
+            MergeTag(tagId: $tagId) {
+              tagId
+              name
+            }
+            MergeAttractionTags(
+              from: { attractionId: $attractionId }
+              to: { tagId: $tagId }
+            ) {
+              from {
+                attractionId
+              }
+              to {
+                tagId
+              }
+            }
+          }
+        `,
+        variables: {
+          tagId: tagId,
+          attractionId: attraction.attractionId,
+        },
+      }
+    })
+
     return {
       mutation: gql`
         mutation mergeAttractions(
@@ -41,6 +125,9 @@ const generateMutations = (data) => {
         }
       `,
       variables: variables,
+      categoryMutations,
+      typeMutations,
+      tagMutations,
     }
   })
   // const categories = data.filters.find(
@@ -64,5 +151,3 @@ const generateMutations = (data) => {
   // })
   return attractionMutations
 }
-
-getSeedMutations()
