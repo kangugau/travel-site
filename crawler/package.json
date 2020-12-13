@@ -10,7 +10,7 @@
     "neo4j-driver": "^4.2.1"
   },
   "scripts": {
-    "crawl": "node index",
+    "start": "node index",
     "seed": "node ./seed/index.js"
   },
   "devDependencies": {}
