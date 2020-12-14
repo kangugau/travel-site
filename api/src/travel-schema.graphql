@@ -2,6 +2,7 @@
 type City {
   cityId: ID!
   name: String
+  longName: String
 }
 
 type Attraction {
@@ -9,11 +10,12 @@ type Attraction {
   name: String
   location: Point
   address: String
-  photos: [Photo] @relation(name: "HAS_PHOTO", direction: "OUT")
+  thumbnail: Photo @relation(name: "HAS_THUMBNAIL", direction: "OUT")
   city: [City] @relation(name: "IN_CITY", direction: "OUT")
   categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
   types: [Type] @relation(name: "IN_TYPE", direction: "OUT")
   tags: [Tag] @relation(name: "HAS_TAG", direction: "OUT")
+  reviews: [Review] @relation(name:"REVIEWS", direction:"IN")
 }
 
 type Photo {
@@ -35,4 +37,26 @@ type Type {
 type Tag {
   tagId: ID!
   name: String
+}
+
+type Review {
+  reviewId: ID!
+  createdDate: Date
+  publishedDate: Date
+  title: String
+  text: String
+  rating: Int!
+  tripDate: Date
+  tripType: String
+  attraction: Attraction @relation(name:"REVIEWS", direction: "OUT") 
+  owner: User! @relation(name: "WROTE", direction: "IN")
+  photos: [Photo] @relation(name: "HAS_PHOTO", direction: "OUT")
+}
+
+type User {
+  userId: ID!
+  username: String!
+  displayName: String
+  avatar: Photo
+  hometown: City @relation(name:"LIVE_IN", direction: "OUT")
 }
