@@ -1,12 +1,12 @@
 
 type City {
-  cityId: ID!
+  id: ID!
   name: String
   longName: String
 }
 
 type Attraction {
-  attractionId: ID!
+  id: ID!
   name: String
   location: Point
   address: String
@@ -16,7 +16,11 @@ type Attraction {
   types: [Type] @relation(name: "IN_TYPE", direction: "OUT")
   tags: [Tag] @relation(name: "HAS_TAG", direction: "OUT")
   reviews: [Review] @relation(name:"REVIEWS", direction:"IN")
-}
+  # similars: [Attraction] @cypher(
+  #   statement:"MATCH (this)-[:IN_CATEGORY|:IN_TYPE|:HAS_TAG]->(t)<-[:IN_CATEGORY|:IN_TYPE|:HAS_TAG]-(a2:Attraction)
+  #   WITH this as a1, a2"
+  #   )
+} 
 
 type Photo {
   width: Int
@@ -25,22 +29,22 @@ type Photo {
 }
 
 type Category {
-  categoryId: ID!
+  id: ID!
   name: String
 }
 
 type Type {
-  typeId: ID!
+  id: ID!
   name: String
 }
 
 type Tag {
-  tagId: ID!
+  id: ID!
   name: String
 }
 
 type Review {
-  reviewId: ID!
+  id: ID!
   createdDate: Date
   publishedDate: Date
   title: String
@@ -54,7 +58,7 @@ type Review {
 }
 
 type User {
-  userId: ID!
+  id: ID!
   username: String!
   displayName: String
   avatar: Photo
