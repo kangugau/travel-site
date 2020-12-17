@@ -33,7 +33,7 @@ const generateReviewMutations = () => {
           $tripType: String
         ) {
           MergeReview(
-            reviewId: $reviewId
+            id: $reviewId
             title: $title
             text: $text
             createdDate: $createdDate
@@ -42,33 +42,33 @@ const generateReviewMutations = () => {
             tripDate: $tripDate
             tripType: $tripType
           ) {
-            reviewId
+            id
           }
           MergeUser(
-            userId: "${user.userId}"
+            id: "${user.userId}"
             displayName: "${user.displayName}"
             username: "${user.username}"
           ) {
             username
           }
           MergeReviewOwner(
-            from: {userId: "${user.userId}"}
-            to: {reviewId: $reviewId}
+            from: {id: "${user.userId}"}
+            to: {id: $reviewId}
           )
           {
             from {
-              userId
+              id
             }
           }
           MergeReviewAttraction(
-            from: { reviewId: $reviewId }
-            to: { attractionId: $attractionId }
+            from: { id: $reviewId }
+            to: { id: $attractionId }
           ) {
             from {
-              reviewId
+              id
             }
             to {
-              attractionId
+              id
             }
           }
         }
@@ -111,7 +111,7 @@ const generateFilterMutations = (data) => {
   const categoryMutations = categories.map((category) => {
     const mutation = gql`
       mutation mergeCategories($categoryId: ID!, $name: String) {
-        MergeCategory(categoryId: $categoryId, name: $name) {
+        MergeCategory(id: $categoryId, name: $name) {
           name
         }
       }
@@ -127,7 +127,7 @@ const generateFilterMutations = (data) => {
   const typeMutations = types.map((type) => {
     const mutation = gql`
       mutation mergeTypes($typeId: ID!, $name: String) {
-        MergeType(typeId: $typeId, name: $name) {
+        MergeType(id: $typeId, name: $name) {
           name
         }
       }
@@ -142,7 +142,7 @@ const generateFilterMutations = (data) => {
   const tagMutations = tags.map((tag) => {
     const mutation = gql`
       mutation mergeTags($tagId: ID!, $name: String) {
-        MergeTag(tagId: $tagId, name: $name) {
+        MergeTag(id: $tagId, name: $name) {
           name
         }
       }
@@ -173,19 +173,19 @@ const generateAttractionMutations = (data) => {
       return {
         mutation: gql`
           mutation mergeCategories($categoryId: ID!, $attractionId: ID!) {
-            MergeCategory(categoryId: $categoryId) {
-              categoryId
+            MergeCategory(id: $categoryId) {
+              id
               name
             }
             MergeAttractionCategories(
-              from: { attractionId: $attractionId }
-              to: { categoryId: $categoryId }
+              from: { id: $attractionId }
+              to: { id: $categoryId }
             ) {
               from {
-                attractionId
+                id
               }
               to {
-                categoryId
+                id
               }
             }
           }
@@ -201,19 +201,19 @@ const generateAttractionMutations = (data) => {
       return {
         mutation: gql`
           mutation mergeTypes($typeId: ID!, $attractionId: ID!) {
-            MergeType(typeId: $typeId) {
-              typeId
+            MergeType(id: $typeId) {
+              id
               name
             }
             MergeAttractionTypes(
-              from: { attractionId: $attractionId }
-              to: { typeId: $typeId }
+              from: { id: $attractionId }
+              to: { id: $typeId }
             ) {
               from {
-                attractionId
+                id
               }
               to {
-                typeId
+                id
               }
             }
           }
@@ -229,19 +229,19 @@ const generateAttractionMutations = (data) => {
       return {
         mutation: gql`
           mutation mergeTags($tagId: ID!, $attractionId: ID!) {
-            MergeTag(tagId: $tagId) {
-              tagId
+            MergeTag(id: $tagId) {
+              id
               name
             }
             MergeAttractionTags(
-              from: { attractionId: $attractionId }
-              to: { tagId: $tagId }
+              from: { id: $attractionId }
+              to: { id: $tagId }
             ) {
               from {
-                attractionId
+                id
               }
               to {
-                tagId
+                id
               }
             }
           }
@@ -262,12 +262,12 @@ const generateAttractionMutations = (data) => {
           $address: String
         ) {
           MergeAttraction(
-            attractionId: $attractionId
+            id: $attractionId
             name: $name
             location: $location
             address: $address
           ) {
-            attractionId
+            id
             name
           }
         }

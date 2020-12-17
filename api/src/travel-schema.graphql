@@ -1,12 +1,12 @@
 
 type City {
-  cityId: ID!
+  id: ID!
   name: String
   longName: String
 }
 
 type Attraction {
-  attractionId: ID!
+  id: ID!
   name: String
   location: Point
   address: String
@@ -16,7 +16,18 @@ type Attraction {
   types: [Type] @relation(name: "IN_TYPE", direction: "OUT")
   tags: [Tag] @relation(name: "HAS_TAG", direction: "OUT")
   reviews: [Review] @relation(name:"REVIEWS", direction:"IN")
-}
+  similars(first: Int = 10): [Attraction] @cypher(
+    statement:"""
+    MATCH (this)-[:IN_CATEGORY|:IN_TYPE|:HAS_TAG]->(t)
+    WITH this as a1, collect(id(t)) as a1Traits
+    MATCH (a2: Attraction)-[:IN_CATEGORY|:IN_TYPE|:HAS_TAG]->(t) where a2<>a1
+    WITH a1, a1Traits, a2, collect(id(t)) as a2Traits
+    WITH a1, a1Traits, a2, a2Traits, gds.alpha.similarity.jaccard(a1Traits, a2Traits) as score
+    RETURN a2
+    ORDER BY score DESC LIMIT $first
+    """
+    )
+} 
 
 type Photo {
   width: Int
@@ -25,22 +36,22 @@ type Photo {
 }
 
 type Category {
-  categoryId: ID!
+  id: ID!
   name: String
 }
 
 type Type {
-  typeId: ID!
+  id: ID!
   name: String
 }
 
 type Tag {
-  tagId: ID!
+  id: ID!
   name: String
 }
 
 type Review {
-  reviewId: ID!
+  id: ID!
   createdDate: Date
   publishedDate: Date
   title: String
@@ -54,9 +65,27 @@ type Review {
 }
 
 type User {
-  userId: ID!
+  id: ID!
   username: String!
   displayName: String
   avatar: Photo
   hometown: City @relation(name:"LIVE_IN", direction: "OUT")
+}
+
+type Query {
+  recommendedAttractions(userId: ID!): [Attraction]! @cypher(statement:"""
+    MATCH (u1:User{id: $userId})-[:WROTE]->(r1:Review)-[:REVIEWS]->(a1:Attraction)
+    WITH u1, a1, avg(r1.rating) AS rating
+    WITH u1, gds.alpha.similarity.asVector(a1, rating) AS u1Vector
+
+    MATCH (u2:User)-[:WROTE]->(r2:Review)-[:REVIEWS]->(a2:Attraction) WHERE u2<>u1
+    WITH u1, u1Vector, u2, a2, avg(r2.rating) AS rating
+    WITH u1, u1Vector, u2, gds.alpha.similarity.asVector(a2, rating) AS u2Vector
+    WHERE size(apoc.coll.intersection([x in u1Vector | x.category], [y in u2Vector | y.category])) > 5
+    WITH u1, u2,  gds.alpha.similarity.pearson(u1Vector, u2Vector, {vectorType:"maps"}) AS similarity
+    ORDER BY similarity DESC limit 10
+
+    MATCH (u2)-[:WROTE]->(r:Review)-[:REVIEWS]->(a:Attraction) WHERE NOT EXISTS((u1)-[:WROTE]->(:Review)-[:REVIEWS]->(a))
+    RETURN a.name, similarity, r.rating AS rating, sum(similarity*r.rating) AS score ORDER BY score DESC LIMIT 10
+  """)
 }

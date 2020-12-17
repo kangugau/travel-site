@@ -101,7 +101,7 @@ const runMutations = async (runAttraction, runFilter, runReview) => {
           batch.map(({ mutation, variables }) => {
             return client
               .mutate({ mutation, variables })
-              .catch((error) => console.log({ error, mutation, variables }))
+              .catch((error) => console.log({ error }))
           })
         )
       }
@@ -111,7 +111,7 @@ const runMutations = async (runAttraction, runFilter, runReview) => {
   }
 }
 
-runMutations(false, false, true).then(() => {
+runMutations(true, true, true).then(() => {
   console.log('Database seeded!')
 })
 // .catch((e) => console.error(e))
