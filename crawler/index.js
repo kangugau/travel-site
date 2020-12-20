@@ -7,7 +7,7 @@ const fs = require('fs')
 async function getAttractions(city = 'hanoi') {
   const query = request.attractions.query
   let variables = request.attractions.variables
-  const cityIds = request.attractions.cityIds
+  const cityIds = request.cityIds
   variables.geoId = cityIds[city]
   let total = 0
   try {
