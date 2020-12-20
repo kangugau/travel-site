@@ -3,10 +3,26 @@ const attractionsData = require('../../../crawler/data/attractions-hanoi.json')
 const reviewsData = require('../../../crawler/data/attraction-reviews.json')
 
 export const getSeedMutations = () => {
-  const attractionMutations = generateAttractionMutations(attractionsData)
+  const {
+    attractionMutations,
+    categoryMutations,
+    typeMutations,
+    tagMutations,
+  } = generateAttractionMutations(attractionsData)
   const filterMutations = generateFilterMutations(attractionsData)
   const reviewMutations = generateReviewMutations(reviewsData)
-  return { attractionMutations, filterMutations, reviewMutations }
+  const thumbnailMutations = generateThumbnailMutations(attractionsData)
+  const reviewPhotoMutations = generateReviewPhotoMutations(reviewsData)
+  return {
+    attractionMutations,
+    categoryMutations,
+    typeMutations,
+    tagMutations,
+    filterMutations,
+    reviewMutations,
+    thumbnailMutations,
+    reviewPhotoMutations,
+  }
 }
 
 const generateReviewMutations = () => {
@@ -103,6 +119,7 @@ const generateReviewMutations = () => {
     return batch
   })
 }
+
 const generateFilterMutations = (data) => {
   const filters = data.filters
   const categories = filters.find(
@@ -154,8 +171,12 @@ const generateFilterMutations = (data) => {
   })
   return { categoryMutations, typeMutations, tagMutations }
 }
+
 const generateAttractionMutations = (data) => {
   const attractions = data.attractions
+  const categoryMutations = []
+  const typeMutations = []
+  const tagMutations = []
   const attractionMutations = attractions.map((attraction) => {
     // const attractionCategories = attractions.categoryIds
     let variables = {
@@ -169,8 +190,8 @@ const generateAttractionMutations = (data) => {
         latitude: attraction.latitude,
       }
     }
-    let categoryMutations = attraction.categoryIds.map((categoryId) => {
-      return {
+    attraction.categoryIds.forEach((categoryId) => {
+      categoryMutations.push({
         mutation: gql`
           mutation mergeCategories($categoryId: ID!, $attractionId: ID!) {
             MergeCategory(id: $categoryId) {
@@ -194,11 +215,11 @@ const generateAttractionMutations = (data) => {
           categoryId: categoryId,
           attractionId: attraction.attractionId,
         },
-      }
+      })
     })
 
-    let typeMutations = attraction.typeIds.map((typeId) => {
-      return {
+    attraction.typeIds.forEach((typeId) => {
+      typeMutations.push({
         mutation: gql`
           mutation mergeTypes($typeId: ID!, $attractionId: ID!) {
             MergeType(id: $typeId) {
@@ -222,11 +243,11 @@ const generateAttractionMutations = (data) => {
           typeId: typeId,
           attractionId: attraction.attractionId,
         },
-      }
+      })
     })
 
-    let tagMutations = attraction.tagIds.map((tagId) => {
-      return {
+    attraction.tagIds.forEach((tagId) => {
+      tagMutations.push({
         mutation: gql`
           mutation mergeTags($tagId: ID!, $attractionId: ID!) {
             MergeTag(id: $tagId) {
@@ -250,7 +271,7 @@ const generateAttractionMutations = (data) => {
           tagId: tagId,
           attractionId: attraction.attractionId,
         },
-      }
+      })
     })
 
     return {
@@ -273,10 +294,96 @@ const generateAttractionMutations = (data) => {
         }
       `,
       variables: variables,
-      categoryMutations,
-      typeMutations,
-      tagMutations,
     }
   })
-  return attractionMutations
+  return { attractionMutations, categoryMutations, typeMutations, tagMutations }
+}
+
+const generateThumbnailMutations = (data) => {
+  // attractions's thumbnail
+  const attractions = data.attractions
+  return attractions
+    .map((attraction) => {
+      const photoList = attraction.location.thumbnail?.photoSizes
+      if (photoList) {
+        const { url, width, height } = photoList[photoList.length - 1]
+        return {
+          mutation: gql`
+            mutation mergePhotos(
+              $url: String!
+              $width: Int
+              $height: Int
+              $attractionId: ID!
+            ) {
+              MergePhoto(url: $url, width: $width, height: $height) {
+                url
+              }
+              MergeAttractionThumbnail(
+                from: { id: $attractionId }
+                to: { url: $url }
+              ) {
+                from {
+                  id
+                }
+                to {
+                  url
+                }
+              }
+            }
+          `,
+          variables: {
+            url,
+            width: parseInt(width),
+            height: parseInt(height),
+            attractionId: attraction.attractionId,
+          },
+        }
+      }
+      return
+    })
+    .filter(Boolean)
+}
+
+const generateReviewPhotoMutations = (data) => {
+  const mutations = []
+  data.forEach((location) => {
+    const reviews = location.reviewListPage.reviews
+    reviews.forEach((review) => {
+      review.photos.forEach(({ photoSizes }) => {
+        // console.log(photoSizes.length)
+        if (photoSizes.length) {
+          const { url, width, height } = photoSizes[photoSizes.length - 1]
+          mutations.push({
+            mutation: gql`
+              mutation mergeReviewPhotos(
+                $url: String!
+                $width: Int
+                $height: Int
+                $reviewId: ID!
+              ) {
+                MergePhoto(url: $url, width: $width, height: $height) {
+                  url
+                }
+                MergeReviewPhotos(from: { id: $reviewId }, to: { url: $url }) {
+                  from {
+                    id
+                  }
+                  to {
+                    url
+                  }
+                }
+              }
+            `,
+            variables: {
+              url,
+              width: parseInt(width),
+              height: parseInt(height),
+              reviewId: review.id,
+            },
+          })
+        }
+      })
+    })
+  })
+  return mutations
 }

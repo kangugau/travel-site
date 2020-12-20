@@ -6,7 +6,8 @@ export const initializeDatabase = (driver) => {
     Category: ["id"], 
     Type: ["id"], 
     Tag:["id"],
-    City: ["id"]})`
+    City: ["id"], 
+    Photo: ["url"]})`
 
   const executeQuery = (driver) => {
     const session = driver.session()
