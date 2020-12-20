@@ -18,57 +18,52 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 })
 
-const runMutations = async (runAttraction, runFilter, runReview) => {
+const runMutations = async (runAttraction, runFilter, runReview, runPhoto) => {
   const {
     attractionMutations,
+    categoryMutations,
+    typeMutations,
+    tagMutations,
     filterMutations,
     reviewMutations,
+    thumbnailMutations,
+    reviewPhotoMutations,
   } = getSeedMutations()
   let count = 0
   if (runAttraction) {
-    await Promise.all(
-      attractionMutations.map(({ mutation, variables }) => {
-        return client
-          .mutate({
+    try {
+      await Promise.all(
+        attractionMutations.map(({ mutation, variables }) => {
+          return client
+            .mutate({
+              mutation,
+              variables,
+            })
+            .catch((e) => {
+              console.log(JSON.stringify(e, null, 2))
+              throw new Error(e)
+            })
+        })
+      )
+      await Promise.all(
+        categoryMutations.map(({ mutation, variables }) => {
+          count++
+          return client.mutate({
             mutation,
             variables,
           })
-          .catch((e) => {
-            console.log(JSON.stringify(e, null, 2))
-            throw new Error(e)
+        })
+      )
+      await Promise.all(
+        typeMutations.map(({ mutation, variables }) => {
+          count++
+          return client.mutate({
+            mutation,
+            variables,
           })
-      })
-    )
-    await Promise.all(
-      attractionMutations.map(async ({ categoryMutations }) => {
-        return Promise.all(
-          categoryMutations.map(({ mutation, variables }) => {
-            count++
-            return client.mutate({
-              mutation,
-              variables,
-            })
-          })
-        )
-      })
-    )
-    await Promise.all(
-      attractionMutations.map(async ({ typeMutations }) => {
-        return Promise.all(
-          typeMutations.map(({ mutation, variables }) => {
-            count++
-            return client.mutate({
-              mutation,
-              variables,
-            })
-          })
-        )
-      })
-    )
+        })
+      )
 
-    // await each group of mutation due to large amount of concurrent connections
-    for (let i = 0; i < attractionMutations.length; i++) {
-      const { tagMutations } = attractionMutations[i]
       await Promise.all(
         tagMutations.map(({ mutation, variables }) => {
           count++
@@ -78,8 +73,10 @@ const runMutations = async (runAttraction, runFilter, runReview) => {
           })
         })
       )
+      console.log(count)
+    } catch (error) {
+      console.log(error)
     }
-    console.log(count)
   }
   if (runFilter) {
     await Promise.all([
@@ -109,9 +106,40 @@ const runMutations = async (runAttraction, runFilter, runReview) => {
       console.log(error.networkError.result.errors)
     }
   }
+  if (runPhoto) {
+    console.log(
+      'adding photos',
+      reviewPhotoMutations.length + thumbnailMutations.length
+    )
+    try {
+      await Promise.all(
+        thumbnailMutations.map(({ mutation, variables }) => {
+          return client
+            .mutate({ mutation, variables })
+            .catch((error) =>
+              console.log({ error: error.networkError.result.errors })
+            )
+        })
+      )
+    } catch (error) {
+      console.log(error)
+    }
+
+    try {
+      await Promise.all(
+        reviewPhotoMutations.map(({ mutation, variables }) => {
+          return client
+            .mutate({ mutation, variables })
+            .catch((error) => console.log({ error }))
+        })
+      )
+    } catch (error) {
+      console.log(error)
+    }
+  }
 }
 
-runMutations(true, true, true).then(() => {
+runMutations(true, false, false, false).then(() => {
   console.log('Database seeded!')
 })
 // .catch((e) => console.error(e))
