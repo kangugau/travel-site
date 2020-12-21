@@ -91,11 +91,7 @@ const variables = {
   isApolloTestActive: true,
 }
 
-const cityIds = {
-  hanoi: 293924,
-}
 module.exports = {
   query,
   variables,
-  cityIds,
 }

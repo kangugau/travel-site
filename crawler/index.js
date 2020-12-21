@@ -4,10 +4,44 @@ const graphqlUrl = 'https://www.tripadvisor.com.vn/data/graphql'
 
 const fs = require('fs')
 
+async function getCityDesc(city = 'hanoi') {
+  const { query, variables } = request.cities
+  const cityId = request.cityIds[city]
+  variables.geoId = cityId
+  try {
+    const response = await axios.post(graphqlUrl, {
+      query: query,
+      variables: variables,
+    })
+    const newData = response.data.data
+    let oldData = {}
+    if (fs.existsSync('./data/cities.json')) {
+      oldData = fs.readFileSync('./data/cities.json', 'utf8')
+      oldData = JSON.parse(oldData)
+    }
+    const data = {
+      ...oldData,
+      [city]: {
+        id: cityId,
+        name: newData.locations[0].name,
+        descriptionTitle: newData.geoDescription?.title.localizedString,
+        descriptionDetail: newData.geoDescription?.description.localizedString,
+        descriptionAlt: newData.locations[0].toolDescription,
+      },
+    }
+    fs.writeFile(`./data/cities.json`, JSON.stringify(data, null, 2), (err) => {
+      console.log(err)
+    })
+    return newData
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 async function getAttractions(city = 'hanoi') {
   const query = request.attractions.query
   let variables = request.attractions.variables
-  const cityIds = request.attractions.cityIds
+  const cityIds = request.cityIds
   variables.geoId = cityIds[city]
   let total = 0
   try {
@@ -36,7 +70,7 @@ async function getAttractions(city = 'hanoi') {
   }
 }
 
-async function getReviews(attractionIds = [317503]) {
+async function getReviews(attractionIds = [317503], city = 'hanoi') {
   const MAX_PER_REQUEST = 20
   const query = request.reviews.query
   let variables = request.reviews.variables
@@ -100,7 +134,7 @@ async function getReviews(attractionIds = [317503]) {
       })
     )
     fs.writeFile(
-      `./data/attraction-reviews.json`,
+      `./data/attraction-reviews-${city}.json`,
       JSON.stringify(finalResults, null, 2),
       (err) => {
         console.log(err)
@@ -111,16 +145,15 @@ async function getReviews(attractionIds = [317503]) {
   }
 }
 
-// function getTags(locationIds) {
-//   const query = request.tags.query
-//   let variables = request.tags.variables
-//   variables.locationIds = locationIds
-// }
 async function getData() {
-  const attractions = await getAttractions()
-  const attractionIds = attractions.attractions.map((item) => item.attractionId)
-  console.log({ attractionIds })
-  getReviews(attractionIds)
+  for (const city in request.cityIds) {
+    await getCityDesc(city)
+    const attractions = await getAttractions(city)
+    const attractionIds = attractions.attractions.map(
+      (item) => item.attractionId
+    )
+    await getReviews(attractionIds, city)
+  }
 }
 
 getData()
