@@ -2,7 +2,7 @@ import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client'
 import dotenv from 'dotenv'
 import fetch from 'node-fetch'
 import { getSeedMutations } from './seed-mutations'
-
+const CONCURRENT_REQUEST_LIMIT = 200
 dotenv.config()
 
 const {
@@ -18,128 +18,146 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 })
 
-const runMutations = async (runAttraction, runFilter, runReview, runPhoto) => {
-  const {
-    attractionMutations,
-    categoryMutations,
-    typeMutations,
-    tagMutations,
-    filterMutations,
-    reviewMutations,
-    thumbnailMutations,
-    reviewPhotoMutations,
-  } = getSeedMutations()
-  let count = 0
-  if (runAttraction) {
-    try {
-      await Promise.all(
-        attractionMutations.map(({ mutation, variables }) => {
-          return client
-            .mutate({
+const runMutations = async (
+  runAttraction = true,
+  runFilter = true,
+  runReview = true,
+  runPhoto = true
+) => {
+  const mutations = getSeedMutations()
+  for (let index = 0; index < mutations.length; index++) {
+    const {
+      cityMutation,
+      attractionMutations,
+      categoryMutations,
+      typeMutations,
+      tagMutations,
+      filterMutations,
+      reviewMutations,
+      thumbnailMutations,
+      reviewPhotoMutations,
+    } = mutations[index]
+    await client
+      .mutate({
+        mutation: cityMutation.mutation,
+        variables: cityMutation.variables,
+      })
+      .catch((e) => {
+        console.log(JSON.stringify(e, null, 2))
+        throw new Error(e)
+      })
+    if (runAttraction) {
+      try {
+        console.log('======Attraction======')
+        await Promise.all(
+          attractionMutations.map(({ mutation, variables }) => {
+            return client.mutate({
               mutation,
               variables,
             })
-            .catch((e) => {
-              console.log(JSON.stringify(e, null, 2))
-              throw new Error(e)
-            })
-        })
-      )
-      await Promise.all(
-        categoryMutations.map(({ mutation, variables }) => {
-          count++
-          return client.mutate({
-            mutation,
-            variables,
-          })
-        })
-      )
-      await Promise.all(
-        typeMutations.map(({ mutation, variables }) => {
-          count++
-          return client.mutate({
-            mutation,
-            variables,
-          })
-        })
-      )
-
-      await Promise.all(
-        tagMutations.map(({ mutation, variables }) => {
-          count++
-          return client.mutate({
-            mutation,
-            variables,
-          })
-        })
-      )
-      console.log(count)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-  if (runFilter) {
-    await Promise.all([
-      ...filterMutations.categoryMutations.map(({ mutation, variables }) => {
-        return client.mutate({ mutation, variables })
-      }),
-      ...filterMutations.typeMutations.map(({ mutation, variables }) => {
-        return client.mutate({ mutation, variables })
-      }),
-      ...filterMutations.tagMutations.map(({ mutation, variables }) => {
-        return client.mutate({ mutation, variables })
-      }),
-    ])
-  }
-  if (runReview) {
-    try {
-      for (const batch of reviewMutations) {
-        await Promise.all(
-          batch.map(({ mutation, variables }) => {
-            return client
-              .mutate({ mutation, variables })
-              .catch((error) => console.log({ error }))
           })
         )
-      }
-    } catch (error) {
-      console.log(error.networkError.result.errors)
-    }
-  }
-  if (runPhoto) {
-    console.log(
-      'adding photos',
-      reviewPhotoMutations.length + thumbnailMutations.length
-    )
-    try {
-      await Promise.all(
-        thumbnailMutations.map(({ mutation, variables }) => {
-          return client
-            .mutate({ mutation, variables })
-            .catch((error) =>
-              console.log({ error: error.networkError.result.errors })
-            )
-        })
-      )
-    } catch (error) {
-      console.log(error)
-    }
 
-    try {
-      await Promise.all(
-        reviewPhotoMutations.map(({ mutation, variables }) => {
-          return client
-            .mutate({ mutation, variables })
-            .catch((error) => console.log({ error }))
-        })
-      )
-    } catch (error) {
-      console.log(error)
+        console.log('======Category======')
+        await Promise.all(
+          categoryMutations.map(({ mutation, variables }) => {
+            return client.mutate({
+              mutation,
+              variables,
+            })
+          })
+        )
+
+        console.log('======Type======')
+        await Promise.all(
+          typeMutations.map(({ mutation, variables }) => {
+            return client.mutate({
+              mutation,
+              variables,
+            })
+          })
+        )
+
+        console.log('======Tag======')
+        await Promise.all(
+          tagMutations.map(({ mutation, variables }) => {
+            return client.mutate({
+              mutation,
+              variables,
+            })
+          })
+        )
+      } catch (error) {
+        console.log(JSON.stringify(error, null, 2))
+      }
+    }
+    if (runFilter) {
+      console.log('======Filter======')
+
+      await Promise.all([
+        ...filterMutations.categoryMutations.map(({ mutation, variables }) => {
+          return client.mutate({ mutation, variables })
+        }),
+        ...filterMutations.typeMutations.map(({ mutation, variables }) => {
+          return client.mutate({ mutation, variables })
+        }),
+        ...filterMutations.tagMutations.map(({ mutation, variables }) => {
+          return client.mutate({ mutation, variables })
+        }),
+      ])
+    }
+    if (runReview) {
+      try {
+        for (const batch of reviewMutations) {
+          await Promise.all(
+            batch.map(({ mutation, variables }) => {
+              return client.mutate({ mutation, variables })
+            })
+          )
+        }
+      } catch (error) {
+        console.log(JSON.stringify(error, null, 2))
+      }
+    }
+    if (runPhoto) {
+      console.log('======Thumbnail======', thumbnailMutations.length)
+      try {
+        await Promise.all(
+          thumbnailMutations.map(({ mutation, variables }) => {
+            return client.mutate({ mutation, variables })
+          })
+        )
+      } catch (error) {
+        console.log(JSON.stringify(error, null, 2))
+      }
+
+      console.log('======Review Photo======', reviewPhotoMutations.length)
+      try {
+        for (
+          let start = 0;
+          start < reviewPhotoMutations.length;
+          start += CONCURRENT_REQUEST_LIMIT
+        ) {
+          const end =
+            start + CONCURRENT_REQUEST_LIMIT > reviewPhotoMutations.length
+              ? reviewPhotoMutations
+              : start + CONCURRENT_REQUEST_LIMIT
+          await Promise.all(
+            reviewPhotoMutations
+              .slice(start, end)
+              .map(({ mutation, variables }) => {
+                return client.mutate({ mutation, variables })
+              })
+          )
+        }
+      } catch (error) {
+        console.log(JSON.stringify(error, null, 2))
+      }
     }
   }
 }
 
-runMutations(true, false, false, false).then(() => {
+runMutations().then(() => {
   console.log('Database seeded!')
 })
 // .catch((e) => console.error(e))
