@@ -2,7 +2,9 @@
 type City {
   id: ID!
   name: String
-  longName: String
+  descriptionTitle: String
+  descriptionDetail: String
+  descriptionAlt: String
 }
 
 type Attraction {
@@ -11,7 +13,7 @@ type Attraction {
   location: Point
   address: String
   thumbnail: Photo @relation(name: "HAS_THUMBNAIL", direction: "OUT")
-  city: [City] @relation(name: "IN_CITY", direction: "OUT")
+  city: City @relation(name: "IN_CITY", direction: "OUT")
   categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
   types: [Type] @relation(name: "IN_TYPE", direction: "OUT")
   tags: [Tag] @relation(name: "HAS_TAG", direction: "OUT")
