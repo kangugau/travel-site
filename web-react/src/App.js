@@ -8,7 +8,11 @@ import Home from './pages/Home'
 import City from './pages/City'
 import Attraction from './pages/Attraction'
 
-import { makeStyles, createMuiTheme } from '@material-ui/core/styles'
+import {
+  makeStyles,
+  createMuiTheme,
+  responsiveFontSizes,
+} from '@material-ui/core/styles'
 import { blue, deepOrange, teal } from '@material-ui/core/colors'
 import {
   CssBaseline,
@@ -18,7 +22,7 @@ import {
   withWidth,
 } from '@material-ui/core'
 
-const theme = createMuiTheme({
+let theme = createMuiTheme({
   palette: {
     primary: blue,
     warning: deepOrange,
@@ -33,6 +37,7 @@ const theme = createMuiTheme({
     },
   },
 })
+theme = responsiveFontSizes(theme)
 
 const useStyles = makeStyles((theme) => ({
   root: {

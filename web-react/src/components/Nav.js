@@ -64,7 +64,7 @@ export default function Nav() {
           <Box className={classes.toolbarLeft}>
             <img
               className={classes.appBarImage}
-              src="img/grandstack.png"
+              src="img/logo.svg"
               alt="GRANDstack logo"
             />
             <Typography
@@ -77,18 +77,10 @@ export default function Nav() {
           </Box>
           <Box>
             <Hidden xsDown>
-              <Button
-                className={classes.button}
-                variant="contained"
-                color="primary"
-              >
+              <Button className={classes.button} variant="text" color="primary">
                 Đăng ký
               </Button>
-              <Button
-                className={classes.button}
-                variant="contained"
-                color="primary"
-              >
+              <Button className={classes.button} variant="text" color="primary">
                 Đăng nhập
               </Button>
             </Hidden>
