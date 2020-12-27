@@ -52,8 +52,11 @@ const generateCityMutation = (data) => {
     id: data.id,
     name: data.name,
     descriptionTitle: data.descriptionTitle,
-    $descriptionDetail: data.descriptionDetail,
+    descriptionDetail: data.descriptionDetail,
     descriptionAlt: data.descriptionAlt,
+    url: data.thumbnail.url,
+    width: data.thumbnail.width,
+    height: data.thumbnail.height,
   }
   return {
     mutation: gql`
@@ -63,6 +66,9 @@ const generateCityMutation = (data) => {
         $descriptionTitle: String
         $descriptionDetail: String
         $descriptionAlt: String
+        $url: String!
+        $width: Int
+        $height: Int
       ) {
         MergeCity(
           id: $id
@@ -73,6 +79,17 @@ const generateCityMutation = (data) => {
         ) {
           id
           name
+        }
+        MergePhoto(url: $url, width: $width, height: $height) {
+          url
+        }
+        MergeCityThumbnail(from: { id: $id }, to: { url: $url }) {
+          from {
+            id
+          }
+          to {
+            url
+          }
         }
       }
     `,

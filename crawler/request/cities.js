@@ -1,4 +1,4 @@
-const query = `query GeoDescriptionQuery($geoId: Int!) {
+const query = `query GeoDescriptionQuery($geoId: Int!, $limit: Int!) {
   geoDescription: Mixer_getGeoDescription(request: {locationid: $geoId}) {
     title {
       localizedString
@@ -11,9 +11,25 @@ const query = `query GeoDescriptionQuery($geoId: Int!) {
     toolDescription: locationDescription
     name
   }
+  topPhotos: PrimaryMedia_getTopPhotos(request: [
+    {locationId: $geoId, length: $limit}
+  ]) {
+    photos {
+      legacy
+      photo {
+        id
+        photoSizes {
+          url
+          width
+          height
+        }
+      }
+    }
+  }  
 }`
 const variables = {
   geoId: 293924,
+  limit: 1,
 }
 
 module.exports = {

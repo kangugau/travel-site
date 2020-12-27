@@ -1,0 +1,110 @@
+{
+  "hanoi": {
+    "id": 293924,
+    "name": "Hà Nội",
+    "descriptionTitle": "Phảng phất âm hưởng Pháp và Trung Hoa, Hà Nội vẫn hiện lên như một thủ đô văn hóa 100% đậm nét Việt Nam",
+    "descriptionDetail": "Thủ đô duyên dáng của Việt Nam đã trường tồn nghìn năm; bên cạnh việc bảo tồn di tích như Phố Cổ, đài tưởng niệm và kiến trúc thuộc địa, Hà Nội vẫn đang từng ngày phát triển hiện đại hơn. Tuy không còn giữ những cái tên trước đây như Thăng Long (nghĩa là \"rồng bay lên\") nhưng Hà Nội chưa bao giờ quên quá khứ oai hùng, được minh chứng bởi các địa điểm Lăng Chủ tịch Hồ Chí Minh và Nhà tù Hỏa Lò. Hồ, công viên, những con đường rợp bóng mát và hơn 600 đền chùa cũng góp phần tạo nên sự hấp dẫn, cuốn hút của thành phố mà du khách có thể dễ dàng khám phá bằng taxi này.",
+    "descriptionAlt": "Thủ đô duyên dáng của Việt Nam đã trường tồn nghìn năm; bên cạnh việc bảo tồn các di tích như Phố Cổ, tượng đài và kiến trúc thuộc địa, Hà Nội vẫn đang từng ngày phát triể̀n hiện đại hơn. Hà Nội có thể đã không còn giữ những cái tên trước đây như Thăng Long hay còn có nghĩa là \"rồng bay lên\" nhưng Hà Nội chưa bao giờ quên quá khứ oai hùng, như các địa điểm Lăng Chủ tịch Hồ Chí Minh và Nhà tù Hỏa Lò minh chứng. Hồ, công viên, những con đường rợp bóng mát và hơn 600 đền chùa cũng góp phần tạo nên sự hấp dẫn, cuốn hút của thành phố này mà du khách có thể dễ dàng khám phá bằng taxi.",
+    "thumbnail": {
+      "url": "https://media-cdn.tripadvisor.com/media/photo-m/1280/1b/33/f7/12/caption.jpg",
+      "width": 1280,
+      "height": 853
+    }
+  },
+  "danang": {
+    "id": 298085,
+    "name": "Đà Nẵng",
+    "descriptionTitle": "Náu mình giữa những ngọn núi uy nghi và làn nước xanh thăm thẳm, một Việt Nam mới đang trỗi dậy",
+    "descriptionDetail": "Nếu bạn muốn thấy một Việt Nam bùng nổ, có lẽ chẳng có nơi nào rõ hơn là Đà Nẵng. Nơi đây đã trở thành một thỏi nam châm hút khách du lịch mang vẻ hiện đại, rực rỡ, có đầy đủ căn hộ cao cấp, công viên giải trí và những khu nghỉ dưỡng mới toanh. Nhưng những nét quyến rũ thưở xưa của thành phố vẫn còn hiện hữu, chẳng hạn như trong những người bản địa hồn hậu, phóng khoáng và ẩm thực đường phố tuyệt diệu. Sau khi no căng với một bát Mì Quảng và Bánh Mì Bà Lan, hãy dạo chơi cho tiêu thức ăn bằng cách khám phá các hang động đá vôi và hang động Phật giáo của Ngũ Hành Sơn. Nghỉ ngơi tại khu nghỉ dưỡng đẹp đến không tưởng trên núi của Bà Nà Hills, nơi Cầu Vàng sừng sững dang tay chào đón bạn.",
+    "descriptionAlt": "Đà Nẵng rất thoải mái và thân thiện, có lẽ vì du khách gặp gỡ tất cả mọi người vừa kết thúc một bữa ăn tuyệt vời. Chuyến tham quan ẩm thực là cách phổ biến để trải nghiệm hương vị địa phương theo đúng nghĩa đen. Sau khi bạn no căng với món mì mặn và thức ăn đường phố ngon lành, dạo chơi cho tiêu thức ăn bằng cách khám phá các hang động đá vôi và hang động Phật giáo của Ngũ Hành Sơn.",
+    "thumbnail": {
+      "url": "https://media-cdn.tripadvisor.com/media/photo-m/1280/1b/33/f3/cf/caption.jpg",
+      "width": 1280,
+      "height": 800
+    }
+  },
+  "phuquoc": {
+    "id": 469418,
+    "name": "Đảo Phú Quốc",
+    "descriptionAlt": "Tắm mình trong ánh mặt trời và thưởng thức một số văn hóa của Việt Nam trên Đảo Phú Quốc, nơi có những bờ cát trắng và làn nước nhiệt đới trong xanh thu hút những người thích đi biển ở khắp nơi trên thế giới. Lặn biển, lặn bằng bình khí là môn thể thao dưới nước được ưa chuộng nhất ở nơi đây, mặc dù trò lướt ván bằng tàu cao tốc, lướt ván buồm và câu mực—vâng, đúng là câu mực—cũng là các trò giải trí được ưa chuộng trong tầm tay ở kỳ nghỉ này. Hãy đi đến khu Chợ Dương Đông vào buổi sáng sớm để có những trải nghiệm độc đáo của địa phương.",
+    "thumbnail": {
+      "url": "https://media-cdn.tripadvisor.com/media/photo-o/05/ad/a9/2b/sao-beach.jpg",
+      "width": 3264,
+      "height": 2448
+    }
+  },
+  "hochiminh": {
+    "id": 293925,
+    "name": "Thành phố Hồ Chí Minh",
+    "descriptionTitle": "Hòn ngọc Viễn Đông, thành phố năng động, rực rỡ và đầy thú vị",
+    "descriptionDetail": "Thành phố Hồ Chí Minh, trung tâm kinh tế và thủ phủ văn hóa lớn nhất Việt Nam, sở hữu những tòa nhà chọc trời cao vút tầng mây, ngả bóng xuống những công trình kiến trúc thời Pháp thuộc và mái chùa truyền thống duyên dáng đã tồn tại từ tháng ngày xưa cũ của Sài Gòn. Phố xá nhộn nhịp, xe cộ hối hả ngược xuôi, ẩm thực đường phố tuyệt ngon, cuộc sống về đêm sôi động và cả những địa danh lịch sử đã tạo nên sức hấp dẫn riêng biệt cho thành phố này, tất cả đều đang chờ bạn khám phá. Hãy ghé thăm Bảo tàng Chứng tích chiến tranh để tìm hiểu đôi điều về Chiến tranh Việt Nam, la cà trên phố Bùi Viện để nhâm nhi bia giá rẻ hay lên thuyền ngao du Đồng bằng sông Cửu Long để thưởng ngoạn những dãy nhà thuyền và cánh đồng lúa mênh mông.",
+    "descriptionAlt": "Thành phố náo nhiệt lớn nhất Việt Nam luôn dẫn đầu xu hướng về cả văn hóa và kinh tế trong nước. Sài Gòn xưa tự hào bởi nét duyên dáng của kiến trúc thuộc địa Pháp và những đại lộ thênh thang từng một thời đông đúc đến tắc nghẽn. Taxi là phương tiện được nhiều người lựa chọn để thăm thú thành phố rộng lớn này. Bảo tàng chứng tích chiến tranh khắc họa Chiến tranh Việt Nam dưới chính con mắt của người dân đất Việt. Đừng bỏ lỡ Chùa Ngọc Hoàng đầy ấn tượng, và nhớ ghé Chợ Bến Thành muôn phần náo nhiệt, nơi bày bán đồ ăn, hoa hay những chú ếch. Du khách cũng có thể ngao du qua những đồng lúa và nhà thuyền rải rác khắp Đồng bằng Sông Cửu Long.",
+    "thumbnail": {
+      "url": "https://media-cdn.tripadvisor.com/media/photo-m/1280/1b/33/f1/0b/caption.jpg",
+      "width": 1280,
+      "height": 728
+    }
+  },
+  "hoian": {
+    "id": 298082,
+    "name": "Hội An",
+    "descriptionAlt": "Thành phố nằm trên dải bờ biển miền trung Việt Nam này là một hình mẫu được bảo tồn tốt của một thương cảng Đông Nam Á quan trọng từ thế kỷ 15-19. Từng là điểm dừng chân phổ biến đối với khách du lịch ba lô, nơi đây ngày càng trở nên nổi tiếng với khách du lịch. Vào ngày 14 âm lịch hàng tháng, thị trấn này sẽ thay đèn điện bằng những chiếc đèn lồng truyền thống đầy màu sắc. Các thắng cảnh bao gồm Chùa Cầu và Đền Quan Công. Hãy để những thợ may lành nghề của thị trấn may đo cho bạn một vài bộ đồ đặt hàng riêng.",
+    "thumbnail": {
+      "url": "https://media-cdn.tripadvisor.com/media/photo-o/0d/b4/95/1e/20161110-163943-largejpg.jpg",
+      "width": 3984,
+      "height": 2988
+    }
+  },
+  "nhatrang": {
+    "id": 293928,
+    "name": "Nha Trang",
+    "descriptionTitle": "Bờ biển thư giãn ở miền nam Việt Nam",
+    "descriptionDetail": "Nha Trang nổi tiếng nhất với những bãi biển cát trắng mỹ lệ. Nhưng không chỉ vậy, nơi đây còn có công viên giải trí, cơ sở tắm bùn, chơi golf và khu tháp Chàm Po Nagar lịch sử cũng như rất nhiều khách sạn và nhà hàng. Những tín đồ ẩm thực thích phiêu lưu có thể thử món bún chả cá, một món bún làm từ cá buồm và sứa, còn đa số mọi người đều có thể thưởng thức hải sản tươi ngon, những món mỳ và bánh xèo vô cùng hấp dẫn.",
+    "descriptionAlt": "Nha Trang nổi tiếng với những bãi biển đẹp đầy cát. Nhưng du khách cũng sẽ tìm thấy các khu vui chơi, tắm bùn, sân golf và khu di tích lịch sử Tháp Bà Po Ngar, cũng như một loạt khách sạn và nhà hàng. Những thực khách bạo dạn có thể nếm thử món bún chả cá, một món súp làm từ cá cờ và sứa.",
+    "thumbnail": {
+      "url": "https://media-cdn.tripadvisor.com/media/photo-b/2560x500/15/33/fb/69/nha-trang.jpg",
+      "width": 2560,
+      "height": 500
+    }
+  },
+  "dalat": {
+    "id": 293922,
+    "name": "Đà Lạt",
+    "descriptionAlt": "Khu nghỉ dưỡng thuộc địa cũ này mang lại một thời gian nghỉ ngơi tránh xa cái nóng nực quanh năm của miền Nam Việt Nam. Thành phố này có nhiều ngôi nhà thời Pháp xinh đẹp và được bao quanh bởi những cây thông và trang trại trồng rau và hoa nước ngoài. Rất xứng đáng thực hiện chuyến đi chỉ để thoát khỏi cái nóng trong một vài ngày.",
+    "thumbnail": {
+      "url": "https://media-cdn.tripadvisor.com/media/photo-c/2560x500/0e/66/3e/27/linh-phuoc-pagode.jpg",
+      "width": 2560,
+      "height": 1920
+    }
+  },
+  "vungtau": {
+    "id": 303946,
+    "name": "Vũng Tàu",
+    "descriptionAlt": null,
+    "thumbnail": {
+      "url": "https://media-cdn.tripadvisor.com/media/photo-b/2560x500/15/33/fe/96/vung-tau.jpg",
+      "width": 2560,
+      "height": 500
+    }
+  },
+  "hue": {
+    "id": 293926,
+    "name": "Huế",
+    "descriptionAlt": "Huế nằm ven bờ sông Hương, con sông chia kinh đô của Triều Nguyễn thành hai nửa. Có vô số di tích lịch sử không thể bỏ qua, đặc biệt là những di tích được UNESCO công nhận là Di sản Thế giới. Các danh lam thắng cảnh có thể bao gồm Hoàng thành trang trí công phu, Cầu Thanh Toàn đầy màu sắc, những ngôi mộ hoàng gia và Tử Cấm Thành. Dành một chút thời gian trầm tư tĩnh lặng nếu bạn tham quan Khe Đá Mài Huế, nơi hàng ngàn người dân đã bị dồn tới chết.",
+    "thumbnail": {
+      "url": "https://media-cdn.tripadvisor.com/media/photo-o/0f/b4/dd/eb/hue-imperial-city-citadel.jpg",
+      "width": 4032,
+      "height": 3024
+    }
+  },
+  "phanthiet": {
+    "id": 298086,
+    "name": "Phan Thiết",
+    "descriptionAlt": null,
+    "thumbnail": {
+      "url": "https://media-cdn.tripadvisor.com/media/photo-b/2560x500/07/62/31/4c/mui-ne-harbor.jpg",
+      "width": 2560,
+      "height": 500
+    }
+  }
+}

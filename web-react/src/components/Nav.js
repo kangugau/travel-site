@@ -162,7 +162,7 @@ export default function Nav() {
             <Link to="/">
               <img
                 className={classes.appBarImage}
-                src="img/logo.svg"
+                src="/img/logo.svg"
                 alt="Attraction Finder logo"
               />
             </Link>
@@ -253,7 +253,7 @@ export default function Nav() {
       >
         <Fade in={modalOpen}>
           <Paper className={classes.modalContent} elevation={3}>
-            <img src="img/logo.svg" alt="GRANDstack logo" />
+            <img src="/img/logo.svg" alt="GRANDstack logo" />
             <Typography variant="h4" id="transition-modal-title">
               {isLoginModal ? 'Đăng nhập' : 'Đăng ký'}
             </Typography>

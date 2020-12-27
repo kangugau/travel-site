@@ -6,14 +6,15 @@ type City {
   descriptionTitle: String
   descriptionDetail: String
   descriptionAlt: String
-  thumbnail: Photo @cypher(
-    statement:"""
-    MATCH (this)<--(a:Attraction)<--(r:Review) where duration.inMonths(r.createdDate, date()).months < 6
-    WITH a, count(r) AS reviews ORDER BY reviews  DESC LIMIT 1
-    MATCH (a)-[:HAS_THUMBNAIL]->(photo:Photo)
-    RETURN photo
-    """
-    )
+  thumbnail: Photo @relation(name: "HAS_THUMBNAIL", direction: "OUT")
+  # @cypher(
+  #   statement:"""
+  #   MATCH (this)<--(a:Attraction)<--(r:Review) where duration.inMonths(r.createdDate, date()).months < 6
+  #   WITH a, count(r) AS reviews ORDER BY reviews  DESC LIMIT 1
+  #   MATCH (a)-[:HAS_THUMBNAIL]->(photo:Photo)
+  #   RETURN photo
+  #   """
+  #   )
 }
 
 type Attraction {

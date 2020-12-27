@@ -71,7 +71,7 @@ export default function HomeMenu() {
           Nhà hàng
         </Button>
       </Box> */}
-      <Box className={classes.search} mt={4}>
+      <Box className={classes.search}>
         <Paper>
           <TextField
             variant="outlined"

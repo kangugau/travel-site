@@ -14,13 +14,12 @@ import {
   createMuiTheme,
   responsiveFontSizes,
 } from '@material-ui/core/styles'
-import { blue, deepOrange, teal } from '@material-ui/core/colors'
+import { blue, teal, grey } from '@material-ui/core/colors'
 import { CssBaseline, Box, Container, ThemeProvider } from '@material-ui/core'
 
 let theme = createMuiTheme({
   palette: {
     primary: blue,
-    warning: deepOrange,
     info: teal,
   },
   overrides: {
@@ -28,6 +27,25 @@ let theme = createMuiTheme({
       root: {
         textTransform: 'none',
         transition: '0.25s',
+      },
+    },
+    MuiCssBaseline: {
+      '@global': {
+        '*::-webkit-scrollbar': {
+          width: '8px',
+          height: '8px',
+        },
+        '::-webkit-scrollbar-track': {
+          background: grey[300],
+          borderRadius: '4px',
+        },
+        '::-webkit-scrollbar-thumb': {
+          background: grey[400],
+          borderRadius: '4px',
+        },
+        '::-webkit-scrollbar-thumb:hover': {
+          background: grey[500],
+        },
       },
     },
   },
