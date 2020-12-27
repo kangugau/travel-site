@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import { Link, useLocation } from 'react-router-dom'
 import { Box, Grid, Typography } from '@material-ui/core'
 import { useQuery, gql } from '@apollo/client'
+import { imageContainer } from '../styles/image'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -28,18 +29,7 @@ const useStyles = makeStyles((theme) => ({
   gridItem: {
     flexShrink: 0,
   },
-  imageContainer: {
-    paddingTop: '66.67%',
-    position: 'relative',
-    '& img': {
-      position: 'absolute',
-      width: '100%',
-      height: '100%',
-      objectFit: 'cover',
-      top: '0',
-      left: '0',
-    },
-  },
+  imageContainer,
 }))
 
 const GET_CITY = gql`

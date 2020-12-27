@@ -1,12 +1,59 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import { Typography, Box, CircularProgress, Backdrop } from '@material-ui/core'
+import { imageContainer } from '../styles/image'
+import Rating from '@material-ui/lab/Rating'
+
+import {
+  Typography,
+  Box,
+  CircularProgress,
+  Backdrop,
+  Grid,
+  Paper,
+} from '@material-ui/core'
 import { useQuery, gql } from '@apollo/client'
-import { useParams } from 'react-router-dom'
-const useStyles = makeStyles(() => ({
+import { useParams, Link } from 'react-router-dom'
+
+function roundHalf(num) {
+  return Math.floor(num * 2) / 2
+}
+
+const useStyles = makeStyles((theme) => ({
   title: {
     fontWeight: '500',
+    marginBottom: theme.spacing(4),
   },
+  cityImage: {
+    width: '100%',
+  },
+  pageHeader: {
+    paddingTop: theme.spacing(6),
+    paddingBottom: theme.spacing(5),
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  descTitle: {
+    fontWeight: '500',
+  },
+  descDetail: {
+    marginTop: theme.spacing(2),
+  },
+  attraction: {
+    padding: theme.spacing(1),
+    margin: theme.spacing(2),
+    '&:hover': {
+      boxShadow: theme.shadows[3],
+    },
+  },
+  attractionImg: {
+    width: '100%',
+  },
+  attractionRating: {
+    display: 'flex',
+    alignItems: 'flex-end',
+    gap: '0.25rem',
+  },
+  imageContainer,
 }))
 
 const GET_CITY = gql`
@@ -25,17 +72,63 @@ const GET_CITY = gql`
     }
   }
 `
+
+const GET_ATTRACTIONS = gql`
+  query getAttractions($cityId: ID!, $first: Int = 10, $offset: Int = 0) {
+    attractions: Attraction(
+      first: $first
+      offset: $offset
+      filter: { city: { id: $cityId } }
+      orderBy: [totalRating_desc]
+    ) {
+      id
+      name
+      location {
+        longitude
+        latitude
+      }
+      address
+      thumbnail {
+        width
+        height
+        url
+      }
+      categories {
+        id
+        name
+      }
+      types {
+        id
+        name
+      }
+      avgRating
+      totalRating
+    }
+  }
+`
 export default function City() {
   const classes = useStyles()
   const params = useParams()
-  const { loading, data: cityData, error: cityError } = useQuery(GET_CITY, {
+  const { loading: cityLoading, data: cityData, error: cityError } = useQuery(
+    GET_CITY,
+    {
+      variables: {
+        id: params.id,
+      },
+    }
+  )
+  const {
+    // loading: attractionsLoading,
+    data: attractionsData,
+    // error: attractionsError,
+  } = useQuery(GET_ATTRACTIONS, {
     variables: {
-      id: params.id,
+      cityId: params.id,
     },
   })
   return (
     <React.Fragment>
-      <Backdrop open={loading}>
+      <Backdrop open={cityLoading}>
         <CircularProgress></CircularProgress>
       </Backdrop>
       {cityError && (
@@ -48,7 +141,77 @@ export default function City() {
           <Typography variant="h1" className={classes.title}>
             {cityData.City[0].name}
           </Typography>
-          <img src={cityData.City[0].thumbnail.url} />
+          <Grid container spacing={2}>
+            <Grid item sm={12} md={5}>
+              <Typography variant="h4" className={classes.descTitle}>
+                {cityData.City[0].descriptionTitle}
+              </Typography>
+              <Typography className={classes.descDetail}>
+                {cityData.City[0].descriptionDetail}
+              </Typography>
+            </Grid>
+            <Grid item sm={12} md={5}>
+              <img
+                src={cityData.City[0].thumbnail.url}
+                alt={cityData.City[0].name}
+                className={classes.cityImage}
+              />
+            </Grid>
+          </Grid>
+          <Typography
+            variant="h3"
+            component="h2"
+            className={classes.pageHeader}
+          >
+            Điểm du lịch tại {cityData.City[0].name}
+          </Typography>
+          <div className={classes.attractionList}>
+            {attractionsData &&
+              attractionsData.attractions.map((attraction) => {
+                return (
+                  <Paper
+                    variant="outlined"
+                    className={classes.attraction}
+                    key={attraction.id}
+                  >
+                    <Grid container spacing={3}>
+                      <Grid item xs={12} sm={4}>
+                        <Link to={'/attration/' + attraction.id}>
+                          <div className={classes.imageContainer}>
+                            <img
+                              src={attraction.thumbnail?.url}
+                              alt={attraction.name}
+                              className={classes.attractionImg}
+                            ></img>
+                          </div>
+                        </Link>
+                      </Grid>
+                      <Grid item xs={12} sm={8}>
+                        <Typography>{attraction.categories[0].name}</Typography>
+                        <Link to={'/attration/' + attraction.id}>
+                          <Typography variant="h4" component="h3">
+                            {attraction.name}
+                          </Typography>
+                        </Link>
+                        <Link
+                          to={'/attration/' + attraction.id}
+                          className={classes.attractionRating}
+                        >
+                          <Rating
+                            value={roundHalf(attraction.avgRating)}
+                            precision={0.5}
+                            readOnly
+                          />
+                          <Typography component="span">
+                            {attraction.totalRating} đánh giá
+                          </Typography>
+                        </Link>
+                      </Grid>
+                    </Grid>
+                  </Paper>
+                )
+              })}
+          </div>
         </Box>
       )}
     </React.Fragment>

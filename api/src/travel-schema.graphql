@@ -28,14 +28,18 @@ type Attraction {
   types: [Type] @relation(name: "IN_TYPE", direction: "OUT")
   tags: [Tag] @relation(name: "HAS_TAG", direction: "OUT")
   reviews: [Review] @relation(name:"REVIEWS", direction:"IN")
+  totalRating: Int @cypher(statement:"""
+    MATCH(this)<--(r:Review)
+    RETURN count(r)
+  """)
   avgRating: Float @cypher(statement:"""
     MATCH(this)<--(r:Review)
-    return avg(r.rating)
+    RETURN avg(r.rating)
   """)
   ratingCount: [RatingCount] @cypher(statement:"""
     MATCH(this)<--(r:Review)
     WITH r.rating as rating, count(*) AS count
-    RETURn {rating:rating, count:count}
+    RETURN {rating:rating, count:count}
   """)
 
   similars(first: Int = 10): [Attraction] @cypher(
