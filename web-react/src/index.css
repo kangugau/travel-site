@@ -9,6 +9,9 @@ a {
   font-weight: 500;
   
 }
-a:hover {
+a:hover p{
   text-decoration: underline;
+}
+:focus {
+  outline: none;
 }

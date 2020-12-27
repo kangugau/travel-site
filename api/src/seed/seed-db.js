@@ -157,7 +157,7 @@ const runMutations = async (
   }
 }
 
-runMutations().then(() => {
+runMutations(false, false, false, false).then(() => {
   console.log('Database seeded!')
 })
 // .catch((e) => console.error(e))

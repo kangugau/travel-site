@@ -1,6 +1,6 @@
 import React from 'react'
 import {
-  Button,
+  // Button,
   Icon,
   Box,
   TextField,
@@ -42,7 +42,7 @@ export default function HomeMenu() {
   const classes = useStyles()
   return (
     <React.Fragment>
-      <Box className={classes.root}>
+      {/* <Box className={classes.root}>
         <Button
           className={classes.menuButton}
           variant="outlined"
@@ -70,8 +70,8 @@ export default function HomeMenu() {
           <MenuIcon>restaurant</MenuIcon>
           Nhà hàng
         </Button>
-      </Box>
-      <Box className={classes.search} mt={4}>
+      </Box> */}
+      <Box className={classes.search}>
         <Paper>
           <TextField
             variant="outlined"

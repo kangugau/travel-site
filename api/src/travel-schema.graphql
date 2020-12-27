@@ -1,3 +1,4 @@
+directive @hide on FIELD_DEFINITION | INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION
 
 type City {
   id: ID!
@@ -5,6 +6,15 @@ type City {
   descriptionTitle: String
   descriptionDetail: String
   descriptionAlt: String
+  thumbnail: Photo @relation(name: "HAS_THUMBNAIL", direction: "OUT")
+  # @cypher(
+  #   statement:"""
+  #   MATCH (this)<--(a:Attraction)<--(r:Review) where duration.inMonths(r.createdDate, date()).months < 6
+  #   WITH a, count(r) AS reviews ORDER BY reviews  DESC LIMIT 1
+  #   MATCH (a)-[:HAS_THUMBNAIL]->(photo:Photo)
+  #   RETURN photo
+  #   """
+  #   )
 }
 
 type Attraction {
@@ -18,6 +28,16 @@ type Attraction {
   types: [Type] @relation(name: "IN_TYPE", direction: "OUT")
   tags: [Tag] @relation(name: "HAS_TAG", direction: "OUT")
   reviews: [Review] @relation(name:"REVIEWS", direction:"IN")
+  avgRating: Float @cypher(statement:"""
+    MATCH(this)<--(r:Review)
+    return avg(r.rating)
+  """)
+  ratingCount: [RatingCount] @cypher(statement:"""
+    MATCH(this)<--(r:Review)
+    WITH r.rating as rating, count(*) AS count
+    RETURn {rating:rating, count:count}
+  """)
+
   similars(first: Int = 10): [Attraction] @cypher(
     statement:"""
     MATCH (this)-[:IN_CATEGORY|:IN_TYPE|:HAS_TAG]->(t)
@@ -26,7 +46,7 @@ type Attraction {
     WITH a1, a1Traits, a2, collect(id(t)) as a2Traits
     WITH a1, a1Traits, a2, a2Traits, gds.alpha.similarity.jaccard(a1Traits, a2Traits) as score
     RETURN a2
-    ORDER BY score DESC LIMIT $first
+    ORDER BY score DESC LIMIT toInteger($first)
     """
     )
 } 
@@ -68,14 +88,31 @@ type Review {
 
 type User {
   id: ID!
+  email: String
+  password: String @hide
   username: String!
   displayName: String
   avatar: Photo
   hometown: City @relation(name:"LIVE_IN", direction: "OUT")
+  roles: [Role]
+}
+
+type LoginUser {
+  token: String
+}
+
+enum Role {
+  ADMIN
+  USER
+}  
+
+type RatingCount {
+  rating: Int!
+  count: Int!
 }
 
 type Query {
-  recommendedAttractions(userId: ID!): [Attraction]! @cypher(statement:"""
+  RecommendedAttractions(userId: ID!): [Attraction]! @cypher(statement:"""
     MATCH (u1:User{id: $userId})-[:WROTE]->(r1:Review)-[:REVIEWS]->(a1:Attraction)
     WITH u1, a1, avg(r1.rating) AS rating
     WITH u1, gds.alpha.similarity.asVector(a1, rating) AS u1Vector
@@ -90,4 +127,33 @@ type Query {
     MATCH (u2)-[:WROTE]->(r:Review)-[:REVIEWS]->(a:Attraction) WHERE NOT EXISTS((u1)-[:WROTE]->(:Review)-[:REVIEWS]->(a))
     RETURN a.name, similarity, r.rating AS rating, sum(similarity*r.rating) AS score ORDER BY score DESC LIMIT 10
   """)
+
+  HotAttractions(first: Int = 10): [Attraction]! @cypher(statement:"""
+    MATCH (a:Attraction)<--(r:Review) where duration.inMonths(r.createdDate, date()).months < 6
+    with a, count(r) AS reviews 
+    return a ORDER BY reviews DESC LIMIT toInteger($first)
+  """)
+}
+
+type Mutation {
+  LoginUser(email: String!, password: String!): LoginUser
+
+  # CreateUser (
+  #   email: String!
+  #   password: String!
+  #   username: String!
+  #   displayName: String
+  #   role: Role
+  # ): User @cypher(statement: """
+  #       MERGE (u:User {email: $email})
+  #       SET
+  #         u.id = apoc.create.uuid(), 
+  #         u.username = $username, 
+  #         u.password = $password, 
+  #         u.email = $email, 
+  #         u.displayName = $displayName,
+  #         u.role = $role
+  #       RETURN u
+  #     """
+  #   )
 }
