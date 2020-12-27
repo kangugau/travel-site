@@ -93,7 +93,7 @@ type User {
   displayName: String
   avatar: Photo
   hometown: City @relation(name:"LIVE_IN", direction: "OUT")
-  role: Role
+  roles: [Role]
 }
 
 type LoginUser {

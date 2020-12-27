@@ -1,7 +1,7 @@
 import { neo4jgraphql } from 'neo4j-graphql-js'
 import { ApolloError } from 'apollo-server'
 import crypto from 'crypto'
-import jwt from 'jsonwebtoken'
+import { signToken } from '../utils'
 export default {
   Mutation: {
     CreateUser: async (obj, params, ctx, resolveInfo) => {
@@ -13,7 +13,7 @@ export default {
         .session()
         .run(`MATCH (u:User {email: "${params.email}"}) return u`)
       if (findUser.records.length > 0) {
-        throw new ApolloError('user_already_exists', 200, [
+        throw new ApolloError('Tài khoản đã tồn tại', 200, [
           'This user already exists',
         ])
       }
@@ -28,30 +28,23 @@ export default {
       const session = ctx.driver.session()
       const cypher =
         'MATCH (u:User {email: $email, password: $password}) RETURN u'
-      return session
-        .run(cypher, params)
-        .then((result) => {
-          if (result.records.length > 0) {
-            const user = {
-              id: result.records[0].get('u').properties.id,
-              email: result.records[0].get('u').properties.email,
-              username: result.records[0].get('u').properties.username,
-              displayName: result.records[0].get('u').properties.displayName,
-              role: result.records[0].get('u').properties.role,
-            }
-            const token = jwt.sign(user, process.env.JWT_SECRET, {
-              expiresIn: process.env.TOKEN_EXPIRE_IN,
-            })
-            return { token: token }
-          } else {
-            throw new ApolloError('user_or_password_incorrect', 405, [
-              'User or password is incorrect',
-            ])
+      return session.run(cypher, params).then((result) => {
+        if (result.records.length > 0) {
+          const user = {
+            id: result.records[0].get('u').properties.id,
+            email: result.records[0].get('u').properties.email,
+            username: result.records[0].get('u').properties.username,
+            displayName: result.records[0].get('u').properties.displayName,
+            roles: result.records[0].get('u').properties.roles,
           }
-        })
-        .catch((e) => {
-          throw new ApolloError('unkonw_error', 405, [`Error ${e.message}`])
-        })
+          const token = signToken(user)
+          return { token }
+        } else {
+          throw new ApolloError('Tài khoản hoặc mật khẩu không đúng', 400, [
+            'User or password is incorrect',
+          ])
+        }
+      })
     },
   },
 }

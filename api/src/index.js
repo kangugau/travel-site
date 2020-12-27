@@ -8,6 +8,8 @@ import { initializeDatabase } from './initialize'
 import cookieParser from 'cookie-parser'
 import { schemaDirectives } from './schema/directives'
 import resolvers from './schema/resolvers'
+import { verifyToken } from './utils'
+
 // set environment variables from .env
 dotenv.config()
 
@@ -30,6 +32,10 @@ const schema = makeAugmentedSchema({
     },
     mutation: {
       exclude: ['RatingCount', 'LoginUser'],
+    },
+    auth: {
+      isAuthenticated: true,
+      hasRole: true,
     },
   },
   schemaDirectives,
@@ -77,7 +83,11 @@ init(driver)
  * generated resolvers to connect to the database.
  */
 const server = new ApolloServer({
-  context: { driver, neo4jDatabase: process.env.NEO4J_DATABASE },
+  context: ({ req }) => {
+    const token = req.headers.authorization || ''
+    const user = verifyToken(token)
+    return { user, driver, neo4jDatabase: process.env.NEO4J_DATABASE }
+  },
   schema: schema,
   introspection: true,
   playground: true,

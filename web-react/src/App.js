@@ -7,6 +7,7 @@ import Nav from './components/Nav'
 import Home from './pages/Home'
 import City from './pages/City'
 import Attraction from './pages/Attraction'
+import User from './pages/User'
 
 import {
   makeStyles,
@@ -14,13 +15,7 @@ import {
   responsiveFontSizes,
 } from '@material-ui/core/styles'
 import { blue, deepOrange, teal } from '@material-ui/core/colors'
-import {
-  CssBaseline,
-  Box,
-  Container,
-  ThemeProvider,
-  withWidth,
-} from '@material-ui/core'
+import { CssBaseline, Box, Container, ThemeProvider } from '@material-ui/core'
 
 let theme = createMuiTheme({
   palette: {
@@ -36,6 +31,9 @@ let theme = createMuiTheme({
       },
     },
   },
+  typography: {
+    fontSize: 12,
+  },
 })
 theme = responsiveFontSizes(theme)
 
@@ -49,7 +47,6 @@ const useStyles = makeStyles((theme) => ({
   appBarSpacer: theme.mixins.toolbar,
   content: {
     flexGrow: 1,
-    height: '100vh',
     overflow: 'auto',
   },
   container: {
@@ -75,6 +72,7 @@ function App() {
                 <Route exact path="/users" component={UserList} />
                 <Route exact path="/city/:id" component={City} />
                 <Route exact path="/attraction/:id" component={Attraction} />
+                <Route exact path="/user/:id" component={User} />
               </Switch>
 
               <Box pt={4}>{/* <Copyright /> */}</Box>
@@ -85,4 +83,4 @@ function App() {
     </ThemeProvider>
   )
 }
-export default withWidth()(App)
+export default App

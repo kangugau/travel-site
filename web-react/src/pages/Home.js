@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import HomeMenu from '../components/Home/HomeMenu'
 import { makeStyles } from '@material-ui/core/styles'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Box, Grid, Typography } from '@material-ui/core'
 import { useQuery, gql } from '@apollo/client'
 
@@ -63,7 +63,7 @@ const GET_CITY = gql`
 
 const GET_HOT_ATTRACTION = gql`
   query getHotAttractions($first: Int) {
-    hotAttractions(first: $first) {
+    HotAttractions(first: $first) {
       id
       name
       types {
@@ -82,9 +82,15 @@ const GET_HOT_ATTRACTION = gql`
 `
 export default function Home() {
   const classes = useStyles()
-
-  const { data: cityData } = useQuery(GET_CITY)
-  const { data: attractionData } = useQuery(GET_HOT_ATTRACTION)
+  const location = useLocation()
+  const { data: cityData, refetch: cityRefetch } = useQuery(GET_CITY)
+  const { data: attractionData, refetch: attractionRefetch } = useQuery(
+    GET_HOT_ATTRACTION
+  )
+  useEffect(() => {
+    cityRefetch()
+    attractionRefetch()
+  }, [location])
 
   return (
     <React.Fragment>
@@ -119,7 +125,7 @@ export default function Home() {
         <Typography variant="h3">Điểm đến hàng đầu</Typography>
         <Grid container className={classes.gridList} spacing={2}>
           {attractionData &&
-            attractionData.hotAttractions.map((attraction) => (
+            attractionData.HotAttractions.map((attraction) => (
               <Grid
                 item
                 key={attraction.id}
