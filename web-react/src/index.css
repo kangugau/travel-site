@@ -3,3 +3,15 @@ body {
   padding: 0;
   font-family: sans-serif;
 }
+a {
+  text-decoration: none;
+  color: inherit;
+  font-weight: 500;
+  
+}
+a:hover p{
+  text-decoration: underline;
+}
+:focus {
+  outline: none;
+}

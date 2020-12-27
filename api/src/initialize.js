@@ -1,5 +1,13 @@
 export const initializeDatabase = (driver) => {
-  const initCypher = `CALL apoc.schema.assert({}, {User: ["userId"], Business: ["businessId"], Review: ["reviewId"], Category: ["name"]})`
+  const initCypher = `CALL apoc.schema.assert({}, {
+    User: ["id"], 
+    Attraction: ["id"], 
+    Review: ["id"], 
+    Category: ["id"], 
+    Type: ["id"], 
+    Tag:["id"],
+    City: ["id"], 
+    Photo: ["url"]})`
 
   const executeQuery = (driver) => {
     const session = driver.session()
