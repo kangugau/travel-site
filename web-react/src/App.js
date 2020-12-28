@@ -15,7 +15,7 @@ import {
   responsiveFontSizes,
 } from '@material-ui/core/styles'
 import { blue, teal, grey } from '@material-ui/core/colors'
-import { CssBaseline, Box, Container, ThemeProvider } from '@material-ui/core'
+import { CssBaseline, Container, ThemeProvider } from '@material-ui/core'
 
 let theme = createMuiTheme({
   palette: {
@@ -93,7 +93,7 @@ function App() {
                 <Route exact path="/user/:id" component={User} />
               </Switch>
 
-              <Box pt={4}>{/* <Copyright /> */}</Box>
+              {/* <Box pt={4}><Copyright /></Box> */}
             </Container>
           </main>
         </div>

@@ -1,5 +1,5 @@
 export const imageContainer = {
-  paddingTop: '66.67%',
+  paddingTop: '56.25%',
   position: 'relative',
   '& img': {
     position: 'absolute',

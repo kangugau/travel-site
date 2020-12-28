@@ -1,8 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import { imageContainer } from '../styles/image'
-import Rating from '@material-ui/lab/Rating'
-
+import { Rating, Pagination } from '@material-ui/lab'
 import {
   Typography,
   Box,
@@ -55,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
   },
   imageContainer,
 }))
-
+const ATTRACTION_PER_PAGE = 10
 const GET_CITY = gql`
   query getCity($id: ID!) {
     City(id: $id) {
@@ -74,7 +73,11 @@ const GET_CITY = gql`
 `
 
 const GET_ATTRACTIONS = gql`
-  query getAttractions($cityId: ID!, $first: Int = 10, $offset: Int = 0) {
+  query getAttractions(
+    $cityId: ID!
+    $first: Int = ${ATTRACTION_PER_PAGE}
+    $offset: Int = 0
+  ) {
     attractions: Attraction(
       first: $first
       offset: $offset
@@ -104,11 +107,20 @@ const GET_ATTRACTIONS = gql`
       avgRating
       totalRating
     }
+    allResults: Attraction(
+      filter: { city: { id: $cityId } }
+    ) {
+      id
+    }
   }
 `
 export default function City() {
   const classes = useStyles()
   const params = useParams()
+  const [page, setPage] = useState(1)
+  const changePage = (event, value) => {
+    setPage(value)
+  }
   const { loading: cityLoading, data: cityData, error: cityError } = useQuery(
     GET_CITY,
     {
@@ -124,6 +136,7 @@ export default function City() {
   } = useQuery(GET_ATTRACTIONS, {
     variables: {
       cityId: params.id,
+      offset: (page - 1) * ATTRACTION_PER_PAGE,
     },
   })
   return (
@@ -142,20 +155,26 @@ export default function City() {
             {cityData.City[0].name}
           </Typography>
           <Grid container spacing={2}>
-            <Grid item sm={12} md={5}>
+            <Grid item sm={12} md={6}>
               <Typography variant="h4" className={classes.descTitle}>
-                {cityData.City[0].descriptionTitle}
+                {cityData.City[0].descriptionTitle
+                  ? cityData.City[0].descriptionTitle
+                  : `Giới thiệu về ${cityData.City[0].name}`}
               </Typography>
               <Typography className={classes.descDetail}>
-                {cityData.City[0].descriptionDetail}
+                {cityData.City[0].descriptionDetail
+                  ? cityData.City[0].descriptionDetail
+                  : cityData.City[0].descriptionAlt}
               </Typography>
             </Grid>
-            <Grid item sm={12} md={5}>
-              <img
-                src={cityData.City[0].thumbnail.url}
-                alt={cityData.City[0].name}
-                className={classes.cityImage}
-              />
+            <Grid item sm={12} md={6}>
+              <div className={classes.imageContainer}>
+                <img
+                  src={cityData.City[0].thumbnail.url}
+                  alt={cityData.City[0].name}
+                  className={classes.cityImage}
+                />
+              </div>
             </Grid>
           </Grid>
           <Typography
@@ -179,7 +198,10 @@ export default function City() {
                         <Link to={'/attration/' + attraction.id}>
                           <div className={classes.imageContainer}>
                             <img
-                              src={attraction.thumbnail?.url}
+                              src={
+                                attraction.thumbnail?.url ||
+                                '/img/default-image.png'
+                              }
                               alt={attraction.name}
                               className={classes.attractionImg}
                             ></img>
@@ -212,6 +234,20 @@ export default function City() {
                 )
               })}
           </div>
+          {attractionsData && (
+            <Box display="flex" justifyContent="center" mt={4}>
+              <Pagination
+                count={Math.ceil(
+                  attractionsData.allResults.length / ATTRACTION_PER_PAGE
+                )}
+                shape="rounded"
+                color="primary"
+                size="large"
+                page={page}
+                onChange={changePage}
+              />
+            </Box>
+          )}
         </Box>
       )}
     </React.Fragment>
