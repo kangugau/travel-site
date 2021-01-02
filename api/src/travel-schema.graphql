@@ -96,7 +96,7 @@ type User {
   password: String @hide
   username: String!
   displayName: String
-  avatar: Photo
+  avatar: Photo @relation(name: "HAS_AVATAR", direction: "OUT")
   hometown: City @relation(name:"LIVE_IN", direction: "OUT")
   roles: [Role]
 }

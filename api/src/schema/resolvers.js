@@ -3,6 +3,31 @@ import { ApolloError } from 'apollo-server'
 import crypto from 'crypto'
 import { signToken } from '../utils'
 export default {
+  Query: {
+    Attraction: async (obj, params, ctx, resolveInfo) => {
+      let result = await neo4jgraphql(obj, params, ctx, resolveInfo)
+      if (
+        result.length &&
+        Object.hasOwnProperty.call(result[0], 'ratingCount')
+      ) {
+        result.forEach((attraction) => {
+          for (let index = 1; index <= 5; index++) {
+            if (
+              attraction.ratingCount.findIndex(
+                (item) => item.rating === index
+              ) === -1
+            ) {
+              attraction.ratingCount.push({ rating: index, count: 0 })
+            }
+          }
+          attraction.ratingCount = attraction.ratingCount.sort(
+            (a, b) => a.rating > b.rating
+          )
+        })
+      }
+      return result
+    },
+  },
   Mutation: {
     CreateUser: async (obj, params, ctx, resolveInfo) => {
       params.password = crypto
