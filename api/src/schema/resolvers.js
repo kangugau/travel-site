@@ -21,8 +21,9 @@ export default {
             }
           }
           attraction.ratingCount = attraction.ratingCount.sort(
-            (a, b) => a.rating > b.rating
+            (a, b) => b.rating - a.rating
           )
+          console.log(attraction.ratingCount)
         })
       }
       return result

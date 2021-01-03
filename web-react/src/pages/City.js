@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import { imageContainer } from '../styles/image'
+import { imageContainer, attractionRating } from '../styles'
 import { Rating, Pagination } from '@material-ui/lab'
 import {
   Typography,
@@ -47,11 +47,7 @@ const useStyles = makeStyles((theme) => ({
   attractionImg: {
     width: '100%',
   },
-  attractionRating: {
-    display: 'flex',
-    alignItems: 'flex-end',
-    gap: '0.25rem',
-  },
+  attractionRating,
   imageContainer,
 }))
 const ATTRACTION_PER_PAGE = 10
@@ -139,6 +135,7 @@ export default function City() {
       offset: (page - 1) * ATTRACTION_PER_PAGE,
     },
   })
+  console.log(attractionsData)
   return (
     <React.Fragment>
       <Backdrop open={cityLoading}>
@@ -155,7 +152,7 @@ export default function City() {
             {cityData.City[0].name}
           </Typography>
           <Grid container spacing={2}>
-            <Grid item sm={12} md={6}>
+            <Grid item xs={12} sm={12} md={6}>
               <Typography variant="h4" className={classes.descTitle}>
                 {cityData.City[0].descriptionTitle
                   ? cityData.City[0].descriptionTitle
@@ -167,7 +164,7 @@ export default function City() {
                   : cityData.City[0].descriptionAlt}
               </Typography>
             </Grid>
-            <Grid item sm={12} md={6}>
+            <Grid item xs={12} sm={12} md={6}>
               <div className={classes.imageContainer}>
                 <img
                   src={cityData.City[0].thumbnail.url}
@@ -195,7 +192,7 @@ export default function City() {
                   >
                     <Grid container spacing={3}>
                       <Grid item xs={12} sm={4}>
-                        <Link to={'/attration/' + attraction.id}>
+                        <Link to={'/attraction/' + attraction.id}>
                           <div className={classes.imageContainer}>
                             <img
                               src={
@@ -210,13 +207,13 @@ export default function City() {
                       </Grid>
                       <Grid item xs={12} sm={8}>
                         <Typography>{attraction.categories[0].name}</Typography>
-                        <Link to={'/attration/' + attraction.id}>
+                        <Link to={'/attraction/' + attraction.id}>
                           <Typography variant="h4" component="h3">
                             {attraction.name}
                           </Typography>
                         </Link>
                         <Link
-                          to={'/attration/' + attraction.id}
+                          to={'/attraction/' + attraction.id}
                           className={classes.attractionRating}
                         >
                           <Rating

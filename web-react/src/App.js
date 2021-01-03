@@ -15,7 +15,16 @@ import {
   responsiveFontSizes,
 } from '@material-ui/core/styles'
 import { blue, teal, grey } from '@material-ui/core/colors'
-import { CssBaseline, Container, ThemeProvider } from '@material-ui/core'
+import {
+  CssBaseline,
+  Container,
+  ThemeProvider,
+  Typography,
+} from '@material-ui/core'
+
+import moment from 'moment'
+import 'moment/locale/vi'
+moment.locale('vi')
 
 let theme = createMuiTheme({
   palette: {
@@ -45,6 +54,19 @@ let theme = createMuiTheme({
         },
         '::-webkit-scrollbar-thumb:hover': {
           background: grey[500],
+        },
+      },
+    },
+    MuiIcon: {
+      root: {
+        verticalAlign: 'middle',
+      },
+    },
+    MuiContainer: {
+      root: {
+        '@media (max-width: 600px)': {
+          paddingLeft: 0,
+          paddingRight: 0,
         },
       },
     },
@@ -78,7 +100,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <Router>
-        <div className={classes.root}>
+        <Typography component="div" className={classes.root}>
           <CssBaseline />
           <Nav></Nav>
           <main className={classes.content}>
@@ -96,7 +118,7 @@ function App() {
               {/* <Box pt={4}><Copyright /></Box> */}
             </Container>
           </main>
-        </div>
+        </Typography>
       </Router>
     </ThemeProvider>
   )
