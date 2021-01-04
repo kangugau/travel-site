@@ -86,7 +86,12 @@ const server = new ApolloServer({
   context: ({ req }) => {
     const token = req.headers.authorization || ''
     const user = verifyToken(token)
-    return { user, driver, neo4jDatabase: process.env.NEO4J_DATABASE }
+    return {
+      user,
+      cypherParams: { currentUser: user },
+      driver,
+      neo4jDatabase: process.env.NEO4J_DATABASE,
+    }
   },
   schema: schema,
   introspection: true,

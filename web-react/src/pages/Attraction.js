@@ -1,18 +1,6 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import {
-  Grid,
-  Typography,
-  Box,
-  Icon,
-  Paper,
-  Button,
-  FormGroup,
-  FormControlLabel,
-  Checkbox,
-  Divider,
-  LinearProgress,
-} from '@material-ui/core'
+import { Grid, Typography, Box, Icon, Paper } from '@material-ui/core'
 import { useParams, Link } from 'react-router-dom'
 import Rating from '@material-ui/lab/Rating'
 import { useQuery, gql } from '@apollo/client'
@@ -100,6 +88,11 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(0.5),
     marginLeft: theme.spacing(0.5),
   },
+  notFound: {
+    padding: theme.spacing(5),
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
   imageContainer,
   attractionRating,
 }))
@@ -120,133 +113,77 @@ export default function Attraction() {
   })
   return (
     <React.Fragment>
-      <Paper elevation={0}>
-        <Grid container>
-          <Grid item className={classes.textBlock} xs={12} sm={12} md={5}>
-            {attractionData && (
-              <React.Fragment>
-                <Typography
-                  variant="h2"
-                  component="h1"
-                  className={classes.title}
-                >
-                  {attractionData.Attraction[0].name}
-                </Typography>
-                <Link
-                  to={'/attraction/' + attractionData.Attraction[0].id}
-                  className={classes.attractionRating}
-                >
-                  <Rating
-                    value={attractionData.Attraction[0].avgRating}
-                    precision={0.1}
-                    readOnly
-                  />
-                  <Typography component="span">
-                    {attractionData.Attraction[0].totalRating} đánh giá
+      {attractionData?.Attraction?.length == 0 && (
+        <div className={classes.notFound}>
+          <Icon fontSize="large">sentiment_very_dissatisfied</Icon>
+          <Typography variant="h6">Không tìm thấy địa điểm</Typography>
+        </div>
+      )}
+      {attractionData?.Attraction?.length > 0 && (
+        <React.Fragment>
+          <Paper elevation={0}>
+            <Grid container>
+              <Grid item className={classes.textBlock} xs={12} sm={12} md={5}>
+                <React.Fragment>
+                  <Typography
+                    variant="h2"
+                    component="h1"
+                    className={classes.title}
+                  >
+                    {attractionData.Attraction[0].name}
                   </Typography>
-                </Link>
-                <Box mt={1}>
-                  {attractionData.Attraction[0].types
-                    .map((type) => {
-                      return (
-                        <Link
-                          key={type.id}
-                          to={'/city/' + attractionData.Attraction[0].city.id}
-                        >
-                          <Typography component="span">{type.name}</Typography>
-                        </Link>
-                      )
-                    })
-                    .reduce((prev, curr) => [prev, ', ', curr])}
-                </Box>
-                <Box my={1}>
-                  <Icon className={classes.icon}>location_on</Icon>
-                  <Box component="span" fontWeight={500} mr={0.5}>
-                    Địa chỉ:
+                  <Link
+                    to={'/attraction/' + attractionData.Attraction[0].id}
+                    className={classes.attractionRating}
+                  >
+                    <Rating
+                      value={attractionData.Attraction[0].avgRating}
+                      precision={0.1}
+                      readOnly
+                    />
+                    <Typography component="span">
+                      {attractionData.Attraction[0].totalRating} đánh giá
+                    </Typography>
+                  </Link>
+                  <Box mt={1}>
+                    {attractionData.Attraction[0].types
+                      .map((type) => {
+                        return (
+                          <Link
+                            key={type.id}
+                            to={'/city/' + attractionData.Attraction[0].city.id}
+                          >
+                            <Typography component="span">
+                              {type.name}
+                            </Typography>
+                          </Link>
+                        )
+                      })
+                      .reduce((prev, curr) => [prev, ', ', curr])}
                   </Box>
-                  {attractionData.Attraction[0].address}
-                </Box>
-              </React.Fragment>
-            )}
-          </Grid>
-          <Grid item xs={12} sm={12} md={7}>
-            {attractionData && (
-              <div className={classes.imageContainer}>
-                <img src={attractionData.Attraction[0].thumbnail.url}></img>
-              </div>
-            )}
-          </Grid>
-        </Grid>
-      </Paper>
-      <Box mt={5}>
-        <Grid item xs={12} sm={12} md={8}>
-          <Paper elevation={0} className={classes.textBlock}>
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <Typography variant="h2" className={classes.title}>
-                Đánh giá
-              </Typography>
-              <Button variant="contained" color="primary">
-                <Icon className={classes.icon}>create</Icon>
-                Viết đánh giá
-              </Button>
-            </Box>
-            {attractionData && (
-              <Box my={1} display="flex" alignItems="center">
-                <Box textAlign="center" mr={2}>
-                  <Typography variant="h6">
-                    {attractionData.Attraction[0].avgRating.toFixed(1)}
-                  </Typography>
-                  <Rating
-                    value={attractionData.Attraction[0].avgRating}
-                    precision={0.1}
-                    readOnly
-                    size="small"
-                  />
-                  <div>{attractionData.Attraction[0].totalRating} đánh giá</div>
-                </Box>
-                <Divider flexItem orientation="vertical"></Divider>
-                <Box ml={2}>
-                  <FormGroup>
-                    {attractionData.Attraction[0].ratingCount.map((rating) => {
-                      return (
-                        <FormControlLabel
-                          key={rating.rating}
-                          control={<Checkbox color="primary" />}
-                          label={
-                            <div className={classes.ratingLabel}>
-                              <Rating
-                                value={rating.rating}
-                                readOnly
-                                size="small"
-                              />
-                              <LinearProgress
-                                className={classes.ratingBar}
-                                variant="determinate"
-                                value={
-                                  (rating.count * 100) /
-                                  attractionData.Attraction[0].totalRating
-                                }
-                              ></LinearProgress>
-                              <span>{rating.count}</span>
-                            </div>
-                          }
-                        />
-                      )
-                    })}
-                  </FormGroup>
-                </Box>
-              </Box>
-            )}
+                  <Box my={1}>
+                    <Icon className={classes.icon}>location_on</Icon>
+                    <Box component="span" fontWeight={500} mr={0.5}>
+                      Địa chỉ:
+                    </Box>
+                    {attractionData.Attraction[0].address}
+                  </Box>
+                </React.Fragment>
+              </Grid>
+              <Grid item xs={12} sm={12} md={7}>
+                {
+                  <div className={classes.imageContainer}>
+                    <img src={attractionData.Attraction[0].thumbnail.url}></img>
+                  </div>
+                }
+              </Grid>
+            </Grid>
           </Paper>
-          <Box mt={2}>
-            <Reviews attractionId={id}></Reviews>
+          <Box mt={5}>
+            <Reviews attraction={attractionData.Attraction[0]}></Reviews>
           </Box>
-        </Grid>
-      </Box>
+        </React.Fragment>
+      )}
     </React.Fragment>
   )
 }

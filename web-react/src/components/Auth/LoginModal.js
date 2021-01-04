@@ -59,7 +59,7 @@ export default function LoginModal(props) {
   return (
     <React.Fragment>
       {loginError && (
-        <Box color="warning.main">Tài khoản hoặc mật khẩu không đúng</Box>
+        <Box color="error.main">Tài khoản hoặc mật khẩu không đúng</Box>
       )}
       <TextField
         type="email"

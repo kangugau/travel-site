@@ -72,5 +72,13 @@ export default {
         }
       })
     },
+    CreateReview: async (obj, params, ctx, resolveInfo) => {
+      console.log(ctx.user)
+      if (!ctx.user)
+        throw new ApolloError('Không có quyền truy cập', 403, [
+          'User or password is incorrect',
+        ])
+      return neo4jgraphql(obj, params, ctx, resolveInfo)
+    },
   },
 }

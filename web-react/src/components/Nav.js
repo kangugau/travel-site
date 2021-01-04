@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import {
   AppBar,
   Toolbar,
@@ -25,6 +25,8 @@ import LoginModal from './Auth/LoginModal'
 import RegisterModal from './Auth/RegisterModal'
 import { Link } from 'react-router-dom'
 import { useUser } from '../utils/hooks'
+import { AuthModalContext } from '../contexts/AuthModalContext'
+
 const useStyles = makeStyles((theme) => ({
   toolbar: {
     justifyContent: 'space-between',
@@ -94,19 +96,20 @@ export default function Nav() {
   const [open, setOpen] = useState(false)
   const classes = useStyles()
   const user = useUser()
+  console.log('check token')
+  useEffect(() => {
+    if (user && user.exp < new Date().getTime() / 1000) {
+      localStorage.removeItem('token')
+    }
+  }, [user])
+
   const theme = useTheme()
   const xsDown = useMediaQuery(theme.breakpoints.down('xs'))
 
   // auth modal
-  const [modalOpen, setModalOpen] = useState(false)
-  const [isLoginModal, setIsLoginModal] = useState(false)
-  const handleOpen = (isLoginModal) => {
-    setIsLoginModal(isLoginModal)
-    setModalOpen(true)
-  }
-  const handleClose = () => {
-    setModalOpen(false)
-  }
+  const { modalOpen, isLoginModal, handleClose, handleOpen } = useContext(
+    AuthModalContext
+  )
 
   // profile menu
   const [anchorEl, setAnchorEl] = React.useState(null)

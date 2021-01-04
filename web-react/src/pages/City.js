@@ -18,6 +18,10 @@ function roundHalf(num) {
 }
 
 const useStyles = makeStyles((theme) => ({
+  container: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+  },
   title: {
     fontWeight: '500',
     marginBottom: theme.spacing(4),
@@ -26,8 +30,8 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
   },
   pageHeader: {
-    paddingTop: theme.spacing(6),
-    paddingBottom: theme.spacing(5),
+    paddingTop: theme.spacing(8),
+    paddingBottom: theme.spacing(3),
     fontWeight: '500',
     textAlign: 'center',
   },
@@ -39,7 +43,8 @@ const useStyles = makeStyles((theme) => ({
   },
   attraction: {
     padding: theme.spacing(1),
-    margin: theme.spacing(2),
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
     '&:hover': {
       boxShadow: theme.shadows[3],
     },
@@ -147,7 +152,7 @@ export default function City() {
         </Typography>
       )}
       {cityData && (
-        <Box>
+        <Box className={classes.container}>
           <Typography variant="h1" className={classes.title}>
             {cityData.City[0].name}
           </Typography>

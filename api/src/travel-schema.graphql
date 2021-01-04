@@ -78,12 +78,12 @@ type Tag {
 
 type Review {
   id: ID!
-  createdDate: Date
-  publishedDate: Date
-  title: String
-  text: String
+  createdDate: Date!
+  publishedDate: Date!
+  title: String!
+  text: String!
   rating: Int!
-  tripDate: Date
+  tripDate: Date!
   tripType: String
   attraction: Attraction @relation(name:"REVIEWS", direction: "OUT") 
   owner: User! @relation(name: "WROTE", direction: "IN")
@@ -141,6 +141,29 @@ type Query {
 
 type Mutation {
   LoginUser(email: String!, password: String!): LoginUser
+  CreateReview(
+    attractionId: ID!
+    title: String!
+    text: String!
+    rating: Int!
+    tripDate: Date!
+  ): Review @cypher(statement:"""
+    MATCH (u:User{id:$cypherParams.currentUser.id}),
+      (a:Attraction{id:$attractionId})
+    WITH u, a
+    CREATE (r:Review)
+    SET 
+      r.id = apoc.create.uuid(),
+      r.title = $title,
+      r.text = $text,
+      r.rating = $rating,
+      r.createdDate = date(),
+      r.publishedDate = date(),
+      r.tripDate = date($tripDate)
+    WITH u, a, r
+    CREATE (u)-[:WROTE]->(r)-[:REVIEWS]->(a)
+    RETURN r
+  """)
 
   # CreateUser (
   #   email: String!

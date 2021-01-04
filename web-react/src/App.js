@@ -1,13 +1,14 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 import { Switch, Route, BrowserRouter as Router } from 'react-router-dom'
 
-import UserList from './components/UserList'
 import Nav from './components/Nav'
 import Home from './pages/Home'
 import City from './pages/City'
 import Attraction from './pages/Attraction'
 import User from './pages/User'
+
+import { AuthModalContext } from './contexts/AuthModalContext'
 
 import {
   makeStyles,
@@ -24,6 +25,9 @@ import {
 
 import moment from 'moment'
 import 'moment/locale/vi'
+import { MuiPickersUtilsProvider } from '@material-ui/pickers'
+import MomentUtils from '@date-io/moment'
+
 moment.locale('vi')
 
 let theme = createMuiTheme({
@@ -92,33 +96,55 @@ const useStyles = makeStyles((theme) => ({
   container: {
     paddingTop: theme.spacing(4),
     paddingBottom: theme.spacing(4),
+    '@media (max-width: 600px)': {
+      paddingTop: theme.spacing(2),
+      paddingBottom: theme.spacing(2),
+    },
   },
 }))
 
 function App() {
   const classes = useStyles()
+  const [modalOpen, setModalOpen] = useState(false)
+  const [isLoginModal, setIsLoginModal] = useState(false)
+  const handleOpen = (isLoginModal) => {
+    setIsLoginModal(isLoginModal)
+    setModalOpen(true)
+  }
+  const handleClose = () => {
+    setModalOpen(false)
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <Router>
-        <Typography component="div" className={classes.root}>
-          <CssBaseline />
-          <Nav></Nav>
-          <main className={classes.content}>
-            <div className={classes.appBarSpacer} />
-            <Container maxWidth="lg" className={classes.container}>
-              <Switch>
-                <Route exact path="/" component={Home} />
-                <Route exact path="/businesses" component={UserList} />
-                <Route exact path="/users" component={UserList} />
-                <Route exact path="/city/:id" component={City} />
-                <Route exact path="/attraction/:id" component={Attraction} />
-                <Route exact path="/user/:id" component={User} />
-              </Switch>
+        <AuthModalContext.Provider
+          value={{ modalOpen, isLoginModal, handleOpen, handleClose }}
+        >
+          <MuiPickersUtilsProvider utils={MomentUtils}>
+            <Typography component="div" className={classes.root}>
+              <CssBaseline />
+              <Nav></Nav>
+              <main className={classes.content}>
+                <div className={classes.appBarSpacer} />
+                <Container maxWidth="lg" className={classes.container}>
+                  <Switch>
+                    <Route exact path="/" component={Home} />
+                    <Route exact path="/city/:id" component={City} />
+                    <Route
+                      exact
+                      path="/attraction/:id"
+                      component={Attraction}
+                    />
+                    <Route exact path="/user/:id" component={User} />
+                  </Switch>
 
-              {/* <Box pt={4}><Copyright /></Box> */}
-            </Container>
-          </main>
-        </Typography>
+                  {/* <Box pt={4}><Copyright /></Box> */}
+                </Container>
+              </main>
+            </Typography>
+          </MuiPickersUtilsProvider>
+        </AuthModalContext.Provider>
       </Router>
     </ThemeProvider>
   )
