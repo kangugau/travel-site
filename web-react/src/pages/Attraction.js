@@ -1,11 +1,14 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import { Grid, Typography, Box, Icon, Paper } from '@material-ui/core'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useLocation } from 'react-router-dom'
 import Rating from '@material-ui/lab/Rating'
-import { useQuery, gql } from '@apollo/client'
+import { useQuery, useMutation, gql } from '@apollo/client'
 import { attractionRating, imageContainer } from '../styles'
 import Reviews from '../components/Attraction/Reviews'
+import { useUser } from '../utils/hooks'
+import moment from 'moment'
+import Map from '../components/Map'
 
 const GET_ATTRACTION_DETAIL = gql`
   query getAttractionDetail(
@@ -64,6 +67,22 @@ const GET_ATTRACTION_DETAIL = gql`
     }
   }
 `
+
+const LOG_VIEWED_ATTRACTION = gql`
+  mutation LogAction(
+    $userId: ID!
+    $attractionId: ID!
+    $lastViewedDate: _Neo4jDateTimeInput!
+  ) {
+    LogViewedAttraction(
+      userId: $userId
+      attractionId: $attractionId
+      lastViewedDate: $lastViewedDate
+    ) {
+      id
+    }
+  }
+`
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
@@ -111,6 +130,29 @@ export default function Attraction() {
   let { data: attractionData } = useQuery(GET_ATTRACTION_DETAIL, {
     variables: { attractionId: id },
   })
+  const user = useUser()
+  const location = useLocation()
+  let [logAction] = useMutation(LOG_VIEWED_ATTRACTION, {
+    variables: {
+      userId: user.id,
+      attractionId: id,
+      lastViewedDate: {
+        formatted: moment().format(),
+      },
+    },
+  })
+  useEffect(() => {
+    const callMutation = async () => {
+      try {
+        await logAction()
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    if (user) {
+      callMutation()
+    }
+  }, [location])
   return (
     <React.Fragment>
       {attractionData?.Attraction?.length == 0 && (
@@ -179,6 +221,9 @@ export default function Attraction() {
               </Grid>
             </Grid>
           </Paper>
+          <Box mt={3}>
+            <Map marker={{ ...attractionData.Attraction[0].location }}></Map>
+          </Box>
           <Box mt={5}>
             <Reviews attraction={attractionData.Attraction[0]}></Reviews>
           </Box>

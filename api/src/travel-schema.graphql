@@ -1,12 +1,12 @@
 directive @hide on FIELD_DEFINITION | INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION
-
+union SearchResult = Attraction | City
 type City {
   id: ID!
   name: String
   descriptionTitle: String
   descriptionDetail: String
   descriptionAlt: String
-  thumbnail: Photo @relation(name: "HAS_THUMBNAIL", direction: "OUT")
+  thumbnail: Photo @relation(name: "HAS_THUMBNAIL", direction: OUT)
   # @cypher(
   #   statement:"""
   #   MATCH (this)<--(a:Attraction)<--(r:Review) where duration.inMonths(r.createdDate, date()).months < 6
@@ -22,12 +22,12 @@ type Attraction {
   name: String
   location: Point
   address: String
-  thumbnail: Photo @relation(name: "HAS_THUMBNAIL", direction: "OUT")
-  city: City @relation(name: "IN_CITY", direction: "OUT")
-  categories: [Category] @relation(name: "IN_CATEGORY", direction: "OUT")
-  types: [Type] @relation(name: "IN_TYPE", direction: "OUT")
-  tags: [Tag] @relation(name: "HAS_TAG", direction: "OUT")
-  reviews: [Review] @relation(name:"REVIEWS", direction:"IN")
+  thumbnail: Photo @relation(name: "HAS_THUMBNAIL", direction: OUT)
+  city: City @relation(name: "IN_CITY", direction: OUT)
+  categories: [Category] @relation(name: "IN_CATEGORY", direction: OUT)
+  types: [Type] @relation(name: "IN_TYPE", direction: OUT)
+  tags: [Tag] @relation(name: "HAS_TAG", direction: OUT)
+  reviews: [Review] @relation(name:"REVIEWS", direction:IN)
   totalRating: Int @cypher(statement:"""
     MATCH(this)<--(r:Review)
     RETURN count(r)
@@ -85,9 +85,9 @@ type Review {
   rating: Int!
   tripDate: Date!
   tripType: String
-  attraction: Attraction @relation(name:"REVIEWS", direction: "OUT") 
-  owner: User! @relation(name: "WROTE", direction: "IN")
-  photos: [Photo] @relation(name: "HAS_PHOTO", direction: "OUT")
+  attraction: Attraction @relation(name:"REVIEWS", direction: OUT) 
+  owner: User! @relation(name: "WROTE", direction: IN)
+  photos: [Photo] @relation(name: "HAS_PHOTO", direction: OUT)
 }
 
 type User {
@@ -96,9 +96,14 @@ type User {
   password: String @hide
   username: String!
   displayName: String
-  avatar: Photo @relation(name: "HAS_AVATAR", direction: "OUT")
-  hometown: City @relation(name:"LIVE_IN", direction: "OUT")
+  avatar: Photo @relation(name: "HAS_AVATAR", direction: OUT)
+  hometown: City @relation(name:"LIVE_IN", direction: OUT)
   roles: [Role]
+  recentViews(first: Int = 10): [Attraction] @cypher(statement:"""
+    MATCH (this)-[r:VIEWED]->(a:Attraction) 
+    RETURN a 
+    ORDER BY r.lastViewedDate DESC LIMIT toInteger($first)
+  """)
 }
 
 type LoginUser {
@@ -137,6 +142,11 @@ type Query {
     with a, count(r) AS reviews 
     return a ORDER BY reviews DESC LIMIT toInteger($first)
   """)
+
+  fullTextSearch(keyword: String): [SearchResult]! @cypher(statement:"""
+    CALL db.index.fulltext.queryNodes("name", $keyword) YIELD node, score
+    RETURN node ORDER BY score DESC
+  """)
 }
 
 type Mutation {
@@ -165,22 +175,13 @@ type Mutation {
     RETURN r
   """)
 
-  # CreateUser (
-  #   email: String!
-  #   password: String!
-  #   username: String!
-  #   displayName: String
-  #   role: Role
-  # ): User @cypher(statement: """
-  #       MERGE (u:User {email: $email})
-  #       SET
-  #         u.id = apoc.create.uuid(), 
-  #         u.username = $username, 
-  #         u.password = $password, 
-  #         u.email = $email, 
-  #         u.displayName = $displayName,
-  #         u.role = $role
-  #       RETURN u
-  #     """
-  #   )
+  LogViewedAttraction(
+    userId: ID!,
+    attractionId:ID!, 
+    lastViewedDate: _Neo4jDateTimeInput!
+  ): Attraction @cypher(statement:"""
+    MATCH(u:User{id:$userId}), (a:Attraction{id:$attractionId})
+    MERGE (u)-[r:VIEWED]->(a) SET r.lastViewedDate = datetime($lastViewedDate.formatted)
+    RETURN a
+  """)
 }

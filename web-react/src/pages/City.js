@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import { imageContainer, attractionRating } from '../styles'
-import { Rating, Pagination } from '@material-ui/lab'
+import { Rating } from '@material-ui/lab'
 import {
   Typography,
   Box,
@@ -10,6 +10,7 @@ import {
   Grid,
   Paper,
 } from '@material-ui/core'
+import Pagination from '../components/Pagination'
 import { useQuery, gql } from '@apollo/client'
 import { useParams, Link } from 'react-router-dom'
 
@@ -237,18 +238,16 @@ export default function City() {
               })}
           </div>
           {attractionsData && (
-            <Box display="flex" justifyContent="center" mt={4}>
-              <Pagination
-                count={Math.ceil(
-                  attractionsData.allResults.length / ATTRACTION_PER_PAGE
-                )}
-                shape="rounded"
-                color="primary"
-                size="large"
-                page={page}
-                onChange={changePage}
-              />
-            </Box>
+            <Pagination
+              count={Math.ceil(
+                attractionsData.allResults.length / ATTRACTION_PER_PAGE
+              )}
+              shape="rounded"
+              color="primary"
+              size="large"
+              page={page}
+              onChange={changePage}
+            />
           )}
         </Box>
       )}

@@ -1,13 +1,6 @@
 import React from 'react'
-import {
-  // Button,
-  Icon,
-  Box,
-  TextField,
-  InputAdornment,
-  Paper,
-} from '@material-ui/core'
-import { makeStyles, withStyles } from '@material-ui/core/styles'
+import { Box, Typography } from '@material-ui/core'
+import { makeStyles } from '@material-ui/core/styles'
 
 export default function HomeMenu() {
   const useStyles = makeStyles((theme) => ({
@@ -31,14 +24,15 @@ export default function HomeMenu() {
       justifyContent: 'center',
       height: '300px',
       borderRadius: '0.5rem',
-      backgroundColor: theme.palette.info.light,
+      backgroundColor: theme.palette.info.main,
+      padding: theme.spacing(3),
+    },
+    pageTitle: {
+      fontWeight: 'bold',
+      textAlign: 'center',
+      color: theme.palette.getContrastText(theme.palette.info.main),
     },
   }))
-  const MenuIcon = withStyles(() => ({
-    root: {
-      marginRight: '0.5rem',
-    },
-  }))(Icon)
   const classes = useStyles()
   return (
     <React.Fragment>
@@ -72,19 +66,9 @@ export default function HomeMenu() {
         </Button>
       </Box> */}
       <Box className={classes.search}>
-        <Paper>
-          <TextField
-            variant="outlined"
-            InputProps={{
-              placeholder: 'Tìm kiếm địa điểm',
-              startAdornment: (
-                <InputAdornment position="start">
-                  <MenuIcon>search</MenuIcon>
-                </InputAdornment>
-              ),
-            }}
-          ></TextField>
-        </Paper>
+        <Typography variant="h1" className={classes.pageTitle}>
+          Tìm kiếm những điểm đến phù hợp
+        </Typography>
       </Box>
     </React.Fragment>
   )

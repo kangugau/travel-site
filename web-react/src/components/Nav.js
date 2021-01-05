@@ -18,6 +18,7 @@ import {
   MenuItem,
   useMediaQuery,
 } from '@material-ui/core'
+import Search from './Search'
 import clsx from 'clsx'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 import { deepOrange } from '@material-ui/core/colors'
@@ -90,11 +91,18 @@ const useStyles = makeStyles((theme) => ({
   verticalAlignMiddle: {
     verticalAlign: 'middle',
   },
+  iconButton: {
+    marginRight: theme.spacing(0.5),
+  },
+  navItem: {
+    marginRight: theme.spacing(2),
+  },
 }))
 
 export default function Nav() {
-  const [open, setOpen] = useState(false)
   const classes = useStyles()
+  const [open, setOpen] = useState(false)
+  const [searchBar, setSearchBar] = useState(false)
   const user = useUser()
   console.log('check token')
   useEffect(() => {
@@ -156,27 +164,44 @@ export default function Nav() {
     <React.Fragment>
       <AppBar position="fixed" className={clsx(classes.appBar)}>
         <Toolbar className={classes.toolbar}>
-          {xsDown && (
+          {xsDown && !searchBar && (
             <IconButton onClick={() => setOpen(true)}>
               <Icon>menu</Icon>
             </IconButton>
           )}
+          {xsDown && searchBar && (
+            <IconButton
+              onClick={() => {
+                setSearchBar(false)
+              }}
+            >
+              <Icon>arrow_back</Icon>
+            </IconButton>
+          )}
           <Box className={classes.toolbarLeft}>
-            <Link to="/">
-              <img
-                className={classes.appBarImage}
-                src="/img/logo.svg"
-                alt="Attraction Finder logo"
-              />
-            </Link>
-            <Typography
-              component="h1"
-              variant="h6"
-              color="inherit"
-              noWrap
-              className={classes.title}
-            ></Typography>
+            {(!xsDown || (xsDown && !searchBar)) && (
+              <Link to="/">
+                <img
+                  className={classes.appBarImage}
+                  src="/img/logo.svg"
+                  alt="Attraction Finder logo"
+                />
+              </Link>
+            )}
+            {(!xsDown || searchBar) && <Search></Search>}
           </Box>
+          {!xsDown && (
+            <React.Fragment>
+              <Button
+                variant="contained"
+                className={classes.navItem}
+                color="primary"
+              >
+                <Icon className={classes.iconButton}>bookmarks</Icon>Đã lưu
+              </Button>
+            </React.Fragment>
+          )}
+
           <Box display="flex">
             {!xsDown ? (
               !user ? (
@@ -208,9 +233,15 @@ export default function Nav() {
                 </React.Fragment>
               )
             ) : (
-              <IconButton>
-                <Icon>search</Icon>
-              </IconButton>
+              !searchBar && (
+                <IconButton
+                  onClick={() => {
+                    setSearchBar(true)
+                  }}
+                >
+                  <Icon>search</Icon>
+                </IconButton>
+              )
             )}
           </Box>
         </Toolbar>

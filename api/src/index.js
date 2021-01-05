@@ -4,7 +4,7 @@ import express from 'express'
 import neo4j from 'neo4j-driver'
 import { makeAugmentedSchema } from 'neo4j-graphql-js'
 import dotenv from 'dotenv'
-import { initializeDatabase } from './initialize'
+// import { initializeDatabase } from './initialize'
 import cookieParser from 'cookie-parser'
 import { schemaDirectives } from './schema/directives'
 import resolvers from './schema/resolvers'
@@ -62,9 +62,9 @@ const driver = neo4j.driver(
  * creating constraints or ensuring indexes are online
  *
  */
-const init = async (driver) => {
-  await initializeDatabase(driver)
-}
+// const init = async (driver) => {
+//   await initializeDatabase(driver)
+// }
 
 /*
  * We catch any errors that occur during initialization
@@ -74,7 +74,7 @@ const init = async (driver) => {
  * have occurred
  */
 
-init(driver)
+// init(driver)
 
 /*
  * Create a new ApolloServer instance, serving the GraphQL schema
