@@ -1,22 +1,16 @@
 import React, { useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import {
-  Grid,
-  Typography,
-  Box,
-  Icon,
-  Paper,
-  IconButton,
-} from '@material-ui/core'
+import { Grid, Typography, Box, Icon, Paper } from '@material-ui/core'
 import { useParams, Link, useLocation } from 'react-router-dom'
 import Rating from '@material-ui/lab/Rating'
 import { useQuery, useMutation, gql } from '@apollo/client'
 import { attractionRating, imageContainer, cursorPointer } from '../styles'
 import Reviews from '../components/Attraction/Reviews'
-import { useUser } from '../utils/hooks'
+import { useUser, useUserInfo } from '../utils/hooks'
 import moment from 'moment'
 import Map from '../components/Map'
 import clsx from 'clsx'
+import BookmarkButton from '../components/Attraction/BookmarkButton'
 
 const GET_ATTRACTION_DETAIL = gql`
   query getAttractionDetail(
@@ -91,6 +85,7 @@ const LOG_VIEWED_ATTRACTION = gql`
     }
   }
 `
+
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
@@ -121,6 +116,9 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+  activeBookmark: {
+    color: theme.palette.warning.main,
+  },
   imageContainer,
   attractionRating,
   cursorPointer,
@@ -136,12 +134,14 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Attraction() {
   const classes = useStyles()
+  const location = useLocation()
   let { id } = useParams()
   let { data: attractionData } = useQuery(GET_ATTRACTION_DETAIL, {
     variables: { attractionId: id },
   })
   const user = useUser()
-  const location = useLocation()
+  const [userInfo] = useUserInfo()
+
   let [logAction] = useMutation(LOG_VIEWED_ATTRACTION)
   useEffect(() => {
     const callMutation = async () => {
@@ -163,6 +163,9 @@ export default function Attraction() {
       callMutation()
     }
   }, [location.pathname])
+  // useEffect(() => {
+  //   console.log({ userInfo })
+  // }, [userInfo])
   return (
     <React.Fragment>
       {attractionData?.Attraction?.length == 0 && (
@@ -186,9 +189,10 @@ export default function Attraction() {
                       {attractionData.Attraction[0].name}
                     </Typography>
                     <div>
-                      <IconButton variant="outlined">
-                        <Icon>bookmark_outlined</Icon>
-                      </IconButton>
+                      <BookmarkButton
+                        attractionId={id}
+                        userInfo={userInfo}
+                      ></BookmarkButton>
                     </div>
                   </Box>
                   <span

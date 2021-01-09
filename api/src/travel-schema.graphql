@@ -116,6 +116,7 @@ type User {
     RETURN a 
     ORDER BY r.lastViewedDate DESC LIMIT toInteger($first)
   """)
+  savedAttractions: [Attraction] @relation(name: "SAVED", direction: OUT)
 }
 
 type LoginUser {

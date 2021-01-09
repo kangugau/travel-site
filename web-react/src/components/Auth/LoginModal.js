@@ -52,6 +52,7 @@ export default function LoginModal(props) {
       console.log(data)
       localStorage.setItem('token', data.data.LoginUser.token)
       props.handleClose()
+      window.location.reload()
     } catch (error) {
       console.log(error)
     }
