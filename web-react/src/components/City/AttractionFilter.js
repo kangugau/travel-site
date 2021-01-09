@@ -35,7 +35,10 @@ const GET_TYPES = gql`
 const useStyles = makeStyles((theme) => ({
   root: {
     padding: theme.spacing(2, 2, 2, 0),
-    marginTop: theme.spacing(2),
+    maxWidth: '80vw',
+    '@media (max-width: 960px)': {
+      height: '100%',
+    },
   },
   attractionImg: {
     width: '100%',
@@ -88,12 +91,15 @@ export default function AttractionFilter(props) {
   const isCateChecked = (id) => {
     return props.selectedCates?.indexOf(id) !== -1
   }
-  const onCateCheckboxChange = (checked, id) => {
+  const onCateCheckboxChange = (checked, cate) => {
     let temp = [...props.selectedCates]
     if (checked) {
-      temp.push(id)
+      temp.push(cate)
     } else {
-      temp.splice(temp.indexOf(id), 1)
+      temp.splice(
+        temp.findIndex((selected) => selected.id === cate),
+        1
+      )
     }
     props.onCatesChange(temp)
   }
@@ -158,7 +164,7 @@ export default function AttractionFilter(props) {
                         <Checkbox
                           checked={true}
                           onChange={(event, checked) => {
-                            onCateCheckboxChange(checked, category.id)
+                            onCateCheckboxChange(checked, category)
                           }}
                         />
                       }
@@ -178,7 +184,7 @@ export default function AttractionFilter(props) {
                         <Checkbox
                           checked={isCateChecked(category.id)}
                           onChange={(event, checked) => {
-                            onCateCheckboxChange(checked, category.id)
+                            onCateCheckboxChange(checked, category)
                           }}
                         />
                       }

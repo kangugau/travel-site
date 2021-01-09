@@ -58,7 +58,9 @@ const useStyles = makeStyles((theme) => ({
   },
   appBarImage: {
     maxHeight: '50px',
-    paddingRight: '20px',
+    '@media (min-width: 600px)': {
+      paddingRight: '20px',
+    },
   },
   button: {
     marginTop: theme.spacing(1),
@@ -233,15 +235,13 @@ export default function Nav() {
                 </React.Fragment>
               )
             ) : (
-              !searchBar && (
-                <IconButton
-                  onClick={() => {
-                    setSearchBar(true)
-                  }}
-                >
-                  <Icon>search</Icon>
-                </IconButton>
-              )
+              <IconButton
+                onClick={() => {
+                  setSearchBar(true)
+                }}
+              >
+                <Icon>search</Icon>
+              </IconButton>
             )}
           </Box>
         </Toolbar>

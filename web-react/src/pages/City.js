@@ -1,17 +1,24 @@
 import React, { useState } from 'react'
-import { makeStyles } from '@material-ui/core/styles'
+import { makeStyles, useTheme } from '@material-ui/core/styles'
 import {
   Typography,
   Box,
   CircularProgress,
   Backdrop,
   Grid,
+  Button,
+  Icon,
+  Drawer,
+  useMediaQuery,
+  Chip,
+  IconButton,
 } from '@material-ui/core'
 import Pagination from '../components/Pagination'
 import { useQuery, gql } from '@apollo/client'
 import { useParams } from 'react-router-dom'
 import AttractionItem from '../components/City/AttractionItem'
 import AttractionFilter from '../components/City/AttractionFilter'
+import Loading from '../components/Loading'
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -36,6 +43,29 @@ const useStyles = makeStyles((theme) => ({
   },
   descDetail: {
     marginTop: theme.spacing(2),
+  },
+  buttonIcon: {
+    marginRight: theme.spacing(1),
+  },
+  filterDrawer: {
+    maxWidth: '85vw',
+  },
+  attractionList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(2),
+  },
+  removeAllButton: {
+    fontWeight: '500',
+    textDecoration: 'underline',
+    cursor: 'pointer',
+    display: 'inline-block',
+    paddingLeft: theme.spacing(0.5),
+  },
+  closeDrawerButton: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
   },
 }))
 const ATTRACTION_PER_PAGE = 10
@@ -101,20 +131,46 @@ const GET_ATTRACTIONS = gql`
 export default function City() {
   const classes = useStyles()
   const params = useParams()
+
+  const [filterDrawer, setFilterDrawer] = useState(false)
+  const theme = useTheme()
+  const smDown = useMediaQuery(theme.breakpoints.down('sm'))
+
   const [selectedCates, setSelectedCates] = useState([])
   const [selectedTypes, setSelectedTypes] = useState([])
 
   const filter = { city: { id: params.id } }
   if (selectedCates.length) {
     filter.categories_some = {
-      id_in: selectedCates,
+      id_in: selectedCates.map((cate) => cate.id),
     }
+  }
+  const deleteCate = (id) => {
+    let temp = [...selectedCates]
+    temp.splice(
+      temp.findIndex((cate) => cate.id === id),
+      1
+    )
+    setSelectedCates(temp)
   }
 
   if (selectedTypes.length) {
     filter.types_some = {
-      id_in: selectedTypes,
+      id_in: selectedTypes.map((type) => type.id),
     }
+  }
+  const deleteType = (id) => {
+    let temp = [...selectedTypes]
+    temp.splice(
+      temp.findIndex((type) => type.id === id),
+      1
+    )
+    setSelectedTypes(temp)
+  }
+
+  const removeAllFilter = () => {
+    setSelectedCates([])
+    setSelectedTypes([])
   }
 
   const [page, setPage] = useState(1)
@@ -130,7 +186,7 @@ export default function City() {
     }
   )
   const {
-    // loading: attractionsLoading,
+    loading: attractionsLoading,
     data: attractionsData,
     // error: attractionsError,
   } = useQuery(GET_ATTRACTIONS, {
@@ -185,40 +241,110 @@ export default function City() {
             Điểm du lịch tại {cityData.City[0].name}
           </Typography>
           <Grid container spacing={2}>
-            <Grid item sm={12} md={4}>
-              <AttractionFilter
-                selectedCates={selectedCates}
-                selectedTypes={selectedTypes}
-                onCatesChange={setSelectedCates}
-                onTypesChange={setSelectedTypes}
-              ></AttractionFilter>
-            </Grid>
-            <Grid item sm={12} md={8}>
-              {attractionsData &&
-                attractionsData.attractions.map((attraction) => {
-                  return (
-                    <AttractionItem
-                      key={attraction.id}
-                      attraction={attraction}
-                    ></AttractionItem>
-                  )
-                })}
+            {!smDown && (
+              <Grid item sm={12} md={4}>
+                <AttractionFilter
+                  selectedCates={selectedCates}
+                  selectedTypes={selectedTypes}
+                  onCatesChange={setSelectedCates}
+                  onTypesChange={setSelectedTypes}
+                ></AttractionFilter>
+              </Grid>
+            )}
+            <Grid item sm={12} md={8} className={classes.attractionList}>
+              <div>
+                {' '}
+                {smDown && (
+                  <Box mb={1}>
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      onClick={() => setFilterDrawer(true)}
+                    >
+                      <Icon className={classes.buttonIcon}>filter_alt</Icon>
+                      Bộ lọc
+                    </Button>
+                  </Box>
+                )}
+                <Box mb={1}>
+                  {selectedCates.map((cate) => (
+                    <Chip
+                      key={cate.id}
+                      clickable
+                      label={cate.name}
+                      onClick={() => deleteCate(cate.id)}
+                      onDelete={() => deleteCate(cate.id)}
+                    />
+                  ))}
+                  {selectedTypes.map((type) => (
+                    <Chip
+                      key={type.id}
+                      clickable
+                      label={type.name}
+                      onClick={() => deleteType(type.id)}
+                      onDelete={() => deleteType(type.id)}
+                    />
+                  ))}
+                </Box>
+                {attractionsLoading && <Loading></Loading>}
+                {attractionsData && (
+                  <React.Fragment>
+                    Tìm thấy{' '}
+                    <strong>
+                      {attractionsData.allResults.length} kết quả.
+                    </strong>
+                    {(selectedTypes.length > 0 || selectedCates.length > 0) && (
+                      <span
+                        className={classes.removeAllButton}
+                        onClick={removeAllFilter}
+                      >
+                        Xóa tất cả bộ lọc
+                      </span>
+                    )}
+                  </React.Fragment>
+                )}
+              </div>
+              {attractionsData && (
+                <React.Fragment>
+                  {attractionsData.attractions.map((attraction) => {
+                    return (
+                      <AttractionItem
+                        key={attraction.id}
+                        attraction={attraction}
+                      ></AttractionItem>
+                    )
+                  })}
+                  <Pagination
+                    count={Math.ceil(
+                      attractionsData.allResults.length / ATTRACTION_PER_PAGE
+                    )}
+                    page={page}
+                    onChange={changePage}
+                  />
+                </React.Fragment>
+              )}
             </Grid>
           </Grid>
-          {attractionsData && (
-            <Pagination
-              count={Math.ceil(
-                attractionsData.allResults.length / ATTRACTION_PER_PAGE
-              )}
-              shape="rounded"
-              color="primary"
-              size="large"
-              page={page}
-              onChange={changePage}
-            />
-          )}
         </Box>
       )}
+      <Drawer
+        open={filterDrawer}
+        onClose={() => setFilterDrawer(false)}
+        anchor="right"
+      >
+        <IconButton
+          className={classes.closeDrawerButton}
+          onClick={() => setFilterDrawer(false)}
+        >
+          <Icon>clear</Icon>
+        </IconButton>
+        <AttractionFilter
+          selectedCates={selectedCates}
+          selectedTypes={selectedTypes}
+          onCatesChange={setSelectedCates}
+          onTypesChange={setSelectedTypes}
+        ></AttractionFilter>
+      </Drawer>
     </React.Fragment>
   )
 }

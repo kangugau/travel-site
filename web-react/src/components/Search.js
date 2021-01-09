@@ -35,9 +35,6 @@ const FULL_TEXT_SEARCH = gql`
   }
 `
 const useStyles = makeStyles((theme) => ({
-  navItem: {
-    marginRight: theme.spacing(2),
-  },
   searchPopover: {
     width: '400px',
     maxWidth: '90vw',

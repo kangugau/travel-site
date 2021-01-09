@@ -8,8 +8,6 @@ import { Link } from 'react-router-dom'
 const useStyles = makeStyles((theme) => ({
   attraction: {
     padding: theme.spacing(1),
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
     '&:hover': {
       boxShadow: theme.shadows[3],
     },

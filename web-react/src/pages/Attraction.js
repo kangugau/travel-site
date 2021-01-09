@@ -1,14 +1,22 @@
 import React, { useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import { Grid, Typography, Box, Icon, Paper } from '@material-ui/core'
+import {
+  Grid,
+  Typography,
+  Box,
+  Icon,
+  Paper,
+  IconButton,
+} from '@material-ui/core'
 import { useParams, Link, useLocation } from 'react-router-dom'
 import Rating from '@material-ui/lab/Rating'
 import { useQuery, useMutation, gql } from '@apollo/client'
-import { attractionRating, imageContainer } from '../styles'
+import { attractionRating, imageContainer, cursorPointer } from '../styles'
 import Reviews from '../components/Attraction/Reviews'
 import { useUser } from '../utils/hooks'
 import moment from 'moment'
 import Map from '../components/Map'
+import clsx from 'clsx'
 
 const GET_ATTRACTION_DETAIL = gql`
   query getAttractionDetail(
@@ -89,6 +97,7 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     fontWeight: '500',
+    flex: '1 1',
   },
   textBlock: {
     padding: theme.spacing(2),
@@ -114,6 +123,7 @@ const useStyles = makeStyles((theme) => ({
   },
   imageContainer,
   attractionRating,
+  cursorPointer,
 }))
 
 // const ratingLabel = {
@@ -167,16 +177,25 @@ export default function Attraction() {
             <Grid container>
               <Grid item className={classes.textBlock} xs={12} sm={12} md={5}>
                 <React.Fragment>
-                  <Typography
-                    variant="h2"
-                    component="h1"
-                    className={classes.title}
-                  >
-                    {attractionData.Attraction[0].name}
-                  </Typography>
-                  <Link
-                    to={'/attraction/' + attractionData.Attraction[0].id}
-                    className={classes.attractionRating}
+                  <Box display="flex">
+                    <Typography
+                      variant="h2"
+                      component="h1"
+                      className={classes.title}
+                    >
+                      {attractionData.Attraction[0].name}
+                    </Typography>
+                    <div>
+                      <IconButton variant="outlined">
+                        <Icon>bookmark_outlined</Icon>
+                      </IconButton>
+                    </div>
+                  </Box>
+                  <span
+                    className={clsx(
+                      classes.attractionRating,
+                      classes.cursorPointer
+                    )}
                   >
                     <Rating
                       value={attractionData.Attraction[0].avgRating}
@@ -186,7 +205,7 @@ export default function Attraction() {
                     <Typography component="span">
                       {attractionData.Attraction[0].totalRating} đánh giá
                     </Typography>
-                  </Link>
+                  </span>
                   <Box mt={1}>
                     {attractionData.Attraction[0].types
                       .map((type) => {
@@ -225,7 +244,10 @@ export default function Attraction() {
             <Map marker={{ ...attractionData.Attraction[0].location }}></Map>
           </Box>
           <Box mt={5}>
-            <Reviews attraction={attractionData.Attraction[0]}></Reviews>
+            <Reviews
+              id="review"
+              attraction={attractionData.Attraction[0]}
+            ></Reviews>
           </Box>
         </React.Fragment>
       )}
