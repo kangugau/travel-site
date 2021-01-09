@@ -43,6 +43,7 @@ export default {
           'This user already exists',
         ])
       }
+      params.roles = ['USER']
       return neo4jgraphql(obj, params, ctx, resolveInfo, true)
     },
     LoginUser: async (obj, params, ctx) => {
@@ -73,11 +74,8 @@ export default {
       })
     },
     CreateReview: async (obj, params, ctx, resolveInfo) => {
-      console.log(ctx.user)
       if (!ctx.user)
-        throw new ApolloError('Không có quyền truy cập', 403, [
-          'User or password is incorrect',
-        ])
+        throw new ApolloError('Yêu cầu đăng nhập', 405, ['Login required'])
       return neo4jgraphql(obj, params, ctx, resolveInfo)
     },
   },

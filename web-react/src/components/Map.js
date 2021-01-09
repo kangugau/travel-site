@@ -29,7 +29,7 @@ export default function Map(props) {
         })
       )
     }
-  }, [location])
+  }, [location.pathname])
 
   useEffect(() => {
     if (map && props.marker) {

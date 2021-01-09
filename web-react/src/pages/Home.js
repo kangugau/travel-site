@@ -104,7 +104,7 @@ export default function Home() {
         },
       })
     }
-  }, [location])
+  }, [location.pathname])
 
   return (
     <React.Fragment>

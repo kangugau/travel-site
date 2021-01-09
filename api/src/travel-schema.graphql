@@ -34,7 +34,7 @@ type Attraction {
   """)
   avgRating: Float @cypher(statement:"""
     MATCH(this)<--(r:Review)
-    RETURN avg(r.rating)
+    RETURN coalesce(avg(r.rating),0)
   """)
   ratingCount: [RatingCount] @cypher(statement:"""
     MATCH(this)<--(r:Review)
@@ -47,6 +47,18 @@ type Attraction {
     MATCH (this)-[:IN_CATEGORY|:IN_TYPE|:HAS_TAG]->(t)
     WITH this as a1, collect(id(t)) as a1Traits
     MATCH (a2: Attraction)-[:IN_CATEGORY|:IN_TYPE|:HAS_TAG]->(t) where a2<>a1
+    WITH a1, a1Traits, a2, collect(id(t)) as a2Traits
+    WITH a1, a1Traits, a2, a2Traits, gds.alpha.similarity.jaccard(a1Traits, a2Traits) as score
+    RETURN a2
+    ORDER BY score DESC LIMIT toInteger($first)
+    """
+    )
+
+  similarsNearBy(first: Int = 10): [Attraction] @cypher(
+    statement:"""
+    MATCH (this)-[:IN_CATEGORY|:IN_TYPE|:HAS_TAG]->(t)
+    WITH this as a1, collect(id(t)) as a1Traits
+    MATCH (a1)-[:IN_CITY]->(:City)<-[:IN_CITY]-(a2: Attraction)-[:IN_CATEGORY|:IN_TYPE|:HAS_TAG]->(t) where a2<>a1
     WITH a1, a1Traits, a2, collect(id(t)) as a2Traits
     WITH a1, a1Traits, a2, a2Traits, gds.alpha.similarity.jaccard(a1Traits, a2Traits) as score
     RETURN a2
@@ -95,7 +107,7 @@ type User {
   email: String
   password: String @hide
   username: String!
-  displayName: String
+  displayName: String!
   avatar: Photo @relation(name: "HAS_AVATAR", direction: OUT)
   hometown: City @relation(name:"LIVE_IN", direction: OUT)
   roles: [Role]
@@ -134,7 +146,8 @@ type Query {
     ORDER BY similarity DESC limit 10
 
     MATCH (u2)-[:WROTE]->(r:Review)-[:REVIEWS]->(a:Attraction) WHERE NOT EXISTS((u1)-[:WROTE]->(:Review)-[:REVIEWS]->(a))
-    RETURN a.name, similarity, r.rating AS rating, sum(similarity*r.rating) AS score ORDER BY score DESC LIMIT 10
+    WITH a, sum(similarity*r.rating) AS score
+    RETURN a ORDER BY score DESC LIMIT 10
   """)
 
   HotAttractions(first: Int = 10): [Attraction]! @cypher(statement:"""

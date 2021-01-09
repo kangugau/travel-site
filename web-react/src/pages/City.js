@@ -1,22 +1,17 @@
 import React, { useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import { imageContainer, attractionRating } from '../styles'
-import { Rating } from '@material-ui/lab'
 import {
   Typography,
   Box,
   CircularProgress,
   Backdrop,
   Grid,
-  Paper,
 } from '@material-ui/core'
 import Pagination from '../components/Pagination'
 import { useQuery, gql } from '@apollo/client'
-import { useParams, Link } from 'react-router-dom'
-
-function roundHalf(num) {
-  return Math.floor(num * 2) / 2
-}
+import { useParams } from 'react-router-dom'
+import AttractionItem from '../components/City/AttractionItem'
+import AttractionFilter from '../components/City/AttractionFilter'
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -42,19 +37,6 @@ const useStyles = makeStyles((theme) => ({
   descDetail: {
     marginTop: theme.spacing(2),
   },
-  attraction: {
-    padding: theme.spacing(1),
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-    '&:hover': {
-      boxShadow: theme.shadows[3],
-    },
-  },
-  attractionImg: {
-    width: '100%',
-  },
-  attractionRating,
-  imageContainer,
 }))
 const ATTRACTION_PER_PAGE = 10
 const GET_CITY = gql`
@@ -76,14 +58,14 @@ const GET_CITY = gql`
 
 const GET_ATTRACTIONS = gql`
   query getAttractions(
-    $cityId: ID!
     $first: Int = ${ATTRACTION_PER_PAGE}
     $offset: Int = 0
+    $filter: _AttractionFilter
   ) {
     attractions: Attraction(
       first: $first
       offset: $offset
-      filter: { city: { id: $cityId } }
+      filter: $filter
       orderBy: [totalRating_desc]
     ) {
       id
@@ -110,7 +92,7 @@ const GET_ATTRACTIONS = gql`
       totalRating
     }
     allResults: Attraction(
-      filter: { city: { id: $cityId } }
+      filter: $filter
     ) {
       id
     }
@@ -119,6 +101,22 @@ const GET_ATTRACTIONS = gql`
 export default function City() {
   const classes = useStyles()
   const params = useParams()
+  const [selectedCates, setSelectedCates] = useState([])
+  const [selectedTypes, setSelectedTypes] = useState([])
+
+  const filter = { city: { id: params.id } }
+  if (selectedCates.length) {
+    filter.categories_some = {
+      id_in: selectedCates,
+    }
+  }
+
+  if (selectedTypes.length) {
+    filter.types_some = {
+      id_in: selectedTypes,
+    }
+  }
+
   const [page, setPage] = useState(1)
   const changePage = (event, value) => {
     setPage(value)
@@ -137,11 +135,10 @@ export default function City() {
     // error: attractionsError,
   } = useQuery(GET_ATTRACTIONS, {
     variables: {
-      cityId: params.id,
       offset: (page - 1) * ATTRACTION_PER_PAGE,
+      filter: filter,
     },
   })
-  console.log(attractionsData)
   return (
     <React.Fragment>
       <Backdrop open={cityLoading}>
@@ -187,56 +184,27 @@ export default function City() {
           >
             Điểm du lịch tại {cityData.City[0].name}
           </Typography>
-          <div className={classes.attractionList}>
-            {attractionsData &&
-              attractionsData.attractions.map((attraction) => {
-                return (
-                  <Paper
-                    variant="outlined"
-                    className={classes.attraction}
-                    key={attraction.id}
-                  >
-                    <Grid container spacing={3}>
-                      <Grid item xs={12} sm={4}>
-                        <Link to={'/attraction/' + attraction.id}>
-                          <div className={classes.imageContainer}>
-                            <img
-                              src={
-                                attraction.thumbnail?.url ||
-                                '/img/default-image.png'
-                              }
-                              alt={attraction.name}
-                              className={classes.attractionImg}
-                            ></img>
-                          </div>
-                        </Link>
-                      </Grid>
-                      <Grid item xs={12} sm={8}>
-                        <Typography>{attraction.categories[0].name}</Typography>
-                        <Link to={'/attraction/' + attraction.id}>
-                          <Typography variant="h4" component="h3">
-                            {attraction.name}
-                          </Typography>
-                        </Link>
-                        <Link
-                          to={'/attraction/' + attraction.id}
-                          className={classes.attractionRating}
-                        >
-                          <Rating
-                            value={roundHalf(attraction.avgRating)}
-                            precision={0.5}
-                            readOnly
-                          />
-                          <Typography component="span">
-                            {attraction.totalRating} đánh giá
-                          </Typography>
-                        </Link>
-                      </Grid>
-                    </Grid>
-                  </Paper>
-                )
-              })}
-          </div>
+          <Grid container spacing={2}>
+            <Grid item sm={12} md={4}>
+              <AttractionFilter
+                selectedCates={selectedCates}
+                selectedTypes={selectedTypes}
+                onCatesChange={setSelectedCates}
+                onTypesChange={setSelectedTypes}
+              ></AttractionFilter>
+            </Grid>
+            <Grid item sm={12} md={8}>
+              {attractionsData &&
+                attractionsData.attractions.map((attraction) => {
+                  return (
+                    <AttractionItem
+                      key={attraction.id}
+                      attraction={attraction}
+                    ></AttractionItem>
+                  )
+                })}
+            </Grid>
+          </Grid>
           {attractionsData && (
             <Pagination
               count={Math.ceil(

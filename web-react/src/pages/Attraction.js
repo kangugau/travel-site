@@ -132,19 +132,19 @@ export default function Attraction() {
   })
   const user = useUser()
   const location = useLocation()
-  let [logAction] = useMutation(LOG_VIEWED_ATTRACTION, {
-    variables: {
-      userId: user.id,
-      attractionId: id,
-      lastViewedDate: {
-        formatted: moment().format(),
-      },
-    },
-  })
+  let [logAction] = useMutation(LOG_VIEWED_ATTRACTION)
   useEffect(() => {
     const callMutation = async () => {
       try {
-        await logAction()
+        await logAction({
+          variables: {
+            userId: user.id,
+            attractionId: id,
+            lastViewedDate: {
+              formatted: moment().format(),
+            },
+          },
+        })
       } catch (error) {
         console.log(error)
       }
@@ -152,7 +152,7 @@ export default function Attraction() {
     if (user) {
       callMutation()
     }
-  }, [location])
+  }, [location.pathname])
   return (
     <React.Fragment>
       {attractionData?.Attraction?.length == 0 && (
