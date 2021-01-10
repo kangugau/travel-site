@@ -24,7 +24,7 @@ const GET_CATEGORIES = gql`
 `
 
 const GET_TYPES = gql`
-  query getTyes {
+  query getTypes {
     types: Type {
       id
       name
@@ -97,7 +97,7 @@ export default function AttractionFilter(props) {
       temp.push(cate)
     } else {
       temp.splice(
-        temp.findIndex((selected) => selected.id === cate),
+        temp.findIndex((selected) => selected.id === cate.id),
         1
       )
     }
@@ -120,12 +120,15 @@ export default function AttractionFilter(props) {
   const isTypeChecked = (id) => {
     return props.selectedCates?.indexOf(id) !== -1
   }
-  const onTypeCheckboxChange = (checked, id) => {
+  const onTypeCheckboxChange = (checked, type) => {
     let temp = [...props.selectedTypes]
     if (checked) {
-      temp.push(id)
+      temp.push(type)
     } else {
-      temp.splice(temp.indexOf(id), 1)
+      temp.splice(
+        temp.findIndex((selected) => selected.id === type.id),
+        1
+      )
     }
     props.onTypesChange(temp)
   }
@@ -155,7 +158,9 @@ export default function AttractionFilter(props) {
                 categoryData.categories
                   .filter(
                     (category) =>
-                      props.selectedCates.indexOf(category.id) !== -1
+                      props.selectedCates.findIndex(
+                        (selected) => selected.id === category.id
+                      ) !== -1
                   )
                   .map((category) => (
                     <FormControlLabel
@@ -174,7 +179,10 @@ export default function AttractionFilter(props) {
 
               {filteredCate
                 .filter(
-                  (category) => props.selectedCates.indexOf(category.id) === -1
+                  (category) =>
+                    props.selectedCates.findIndex(
+                      (selected) => selected.id === category.id
+                    ) === -1
                 )
                 .map((category) => {
                   return (
@@ -220,8 +228,13 @@ export default function AttractionFilter(props) {
           <FormControl fullWidth>
             <FormGroup className={clsx(classes.filterGroup, classes.spaceLeft)}>
               {props.selectedTypes?.length > 0 &&
-                typeData.categories
-                  .filter((type) => props.selectedTypes.indexOf(type.id) !== -1)
+                typeData.types
+                  .filter(
+                    (type) =>
+                      props.selectedTypes.findIndex(
+                        (selected) => selected.id === type.id
+                      ) !== -1
+                  )
                   .map((type) => (
                     <FormControlLabel
                       key={type.id}
@@ -238,7 +251,12 @@ export default function AttractionFilter(props) {
                   ))}
 
               {filteredType
-                .filter((type) => props.selectedCates.indexOf(type.id) === -1)
+                .filter(
+                  (type) =>
+                    props.selectedTypes.findIndex(
+                      (selected) => selected.id === type.id
+                    ) === -1
+                )
                 .map((type) => {
                   return (
                     <FormControlLabel
