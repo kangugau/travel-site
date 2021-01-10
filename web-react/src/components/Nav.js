@@ -214,9 +214,7 @@ export default function Nav() {
                     className={classes.avatar}
                     onClick={openProfileMenu}
                   >
-                    <Avatar className={classes.orange}>
-                      {user.username[0]}
-                    </Avatar>
+                    <Avatar className={classes.orange}></Avatar>
                   </IconButton>
                   <Menu
                     id="profile-menu"
@@ -225,11 +223,14 @@ export default function Nav() {
                       vertical: 'bottom',
                       horizontal: 'right',
                     }}
+                    transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                     getContentAnchorEl={null}
                     open={Boolean(anchorEl)}
                     onClose={closeProfileMenu}
                   >
-                    <MenuItem onClick={closeProfileMenu}>Profile</MenuItem>
+                    <MenuItem onClick={closeProfileMenu}>
+                      <Link to={`/user/${user.id}`}>Profile</Link>
+                    </MenuItem>
                     <MenuItem onClick={logout}>Logout</MenuItem>
                   </Menu>
                 </React.Fragment>
@@ -255,9 +256,7 @@ export default function Nav() {
               <Box p={1}>
                 <Link to={`/user/${user.id}`}>
                   <IconButton className={classes.avatar}>
-                    <Avatar className={classes.orange}>
-                      {user.username[0]}
-                    </Avatar>
+                    <Avatar className={classes.orange}></Avatar>
                   </IconButton>
                   <Typography
                     variant="h5"

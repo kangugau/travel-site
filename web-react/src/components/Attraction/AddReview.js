@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import {
   Typography,
@@ -13,9 +13,7 @@ import {
 } from '@material-ui/core'
 import Rating from '@material-ui/lab/Rating'
 import { useMutation, gql } from '@apollo/client'
-import { DatePicker } from '@material-ui/pickers'
 
-import moment from 'moment'
 import { required, useValidator } from '../../utils/validators'
 
 const useStyles = makeStyles((theme) => ({
@@ -40,27 +38,18 @@ const ADD_REVIEW_MUTATION = gql`
     $title: String!
     $text: String!
     $rating: Int!
-    $tripDate: _Neo4jDateInput!
   ) {
     CreateReview(
       attractionId: $attractionId
       title: $title
       text: $text
       rating: $rating
-      tripDate: $tripDate
     ) {
       id
     }
   }
 `
-const toNeo4jDate = (date) => {
-  if (!date) return
-  return {
-    day: date.date(),
-    month: date.month() + 1,
-    year: date.year(),
-  }
-}
+
 const RATING_LABELS = {
   1: 'Kinh khủng',
   2: 'Tồi',
@@ -75,12 +64,7 @@ export function AddReview(props) {
     title: '',
     text: '',
     rating: 5,
-    tripDate: moment(),
   })
-
-  useEffect(() => {
-    validate(formData, 'tripDate')
-  }, [formData.tripDate])
 
   const setField = (field, value) => {
     setFormData({
@@ -91,9 +75,6 @@ export function AddReview(props) {
   const rules = {
     title: [{ validator: required, message: 'Tiêu đề là bắt buộc' }],
     text: [{ validator: required, message: 'Nội dung đánh giá là bắt buộc' }],
-    tripDate: [
-      { validator: required, message: 'Ngày trải nghiệm là bắt buộc' },
-    ],
   }
 
   const [addReview, { error: addReviewError }] = useMutation(
@@ -104,7 +85,6 @@ export function AddReview(props) {
         title: formData.title,
         text: formData.text,
         rating: formData.rating,
-        tripDate: toNeo4jDate(formData.tripDate),
       },
       ignoreResults: false,
     }
@@ -168,26 +148,6 @@ export function AddReview(props) {
               onChange={(event) => setField('title', event.target.value)}
               onBlur={() => validate(formData, 'title')}
             ></TextField>
-            <DatePicker
-              autoOk
-              variant="inline"
-              format="DD/MM/YYYY"
-              color="primary"
-              inputVariant="outlined"
-              label="Ngày trải nghiệm"
-              margin="normal"
-              required
-              fullWidth
-              error={Boolean(errors.tripDate.length)}
-              helperText={
-                errors.tripDate.length ? errors.tripDate[0].message : ''
-              }
-              value={formData.tripDate}
-              onChange={(date) => {
-                setField('tripDate', date)
-              }}
-              onClose={() => validate(formData, 'tripDate')}
-            ></DatePicker>
             <TextField
               type="text"
               required

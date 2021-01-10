@@ -95,7 +95,7 @@ type Review {
   title: String!
   text: String!
   rating: Int!
-  tripDate: Date!
+  tripDate: Date
   tripType: String
   attraction: Attraction @relation(name:"REVIEWS", direction: OUT) 
   owner: User! @relation(name: "WROTE", direction: IN)
@@ -111,6 +111,7 @@ type User {
   avatar: Photo @relation(name: "HAS_AVATAR", direction: OUT)
   hometown: City @relation(name:"LIVE_IN", direction: OUT)
   roles: [Role]
+  reviews: [Review] @relation(name: "WROTE", direction: OUT)
   recentViews(first: Int = 10): [Attraction] @cypher(statement:"""
     MATCH (this)-[r:VIEWED]->(a:Attraction) 
     RETURN a 
@@ -170,7 +171,6 @@ type Mutation {
     title: String!
     text: String!
     rating: Int!
-    tripDate: Date!
   ): Review @cypher(statement:"""
     MATCH (u:User{id:$cypherParams.currentUser.id}),
       (a:Attraction{id:$attractionId})
@@ -182,8 +182,7 @@ type Mutation {
       r.text = $text,
       r.rating = $rating,
       r.createdDate = date(),
-      r.publishedDate = date(),
-      r.tripDate = date($tripDate)
+      r.publishedDate = date()
     WITH u, a, r
     CREATE (u)-[:WROTE]->(r)-[:REVIEWS]->(a)
     RETURN r

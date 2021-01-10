@@ -50,9 +50,6 @@ const GET_ATTRACTION_REVIEWS = gql`
       title
       text
       rating
-      tripDate {
-        formatted
-      }
       tripType
       owner {
         id
@@ -164,6 +161,11 @@ export default function Reviews(props) {
   const onAddReview = () => {
     refetch()
   }
+
+  const onDeleteReview = () => {
+    refetch()
+  }
+
   return (
     <React.Fragment>
       <Grid item xs={12} sm={12} md={8}>
@@ -235,7 +237,13 @@ export default function Reviews(props) {
             {reviewsData?.reviews && (
               <React.Fragment>
                 {reviewsData.reviews.map((review) => {
-                  return <ReviewItem key={review.id} review={review} />
+                  return (
+                    <ReviewItem
+                      key={review.id}
+                      review={review}
+                      onDeleteReview={onDeleteReview}
+                    />
+                  )
                 })}
                 {reviewsData.allResults.length > 0 && (
                   <Pagination
