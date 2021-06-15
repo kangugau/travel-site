@@ -24,7 +24,7 @@ import { AddReview } from './AddReview'
 import Pagination from '../Pagination'
 
 import { useUser } from '../../utils/hooks'
-import { AuthModalContext } from '../../contexts/AuthModalContext'
+import { AuthContext } from '../../contexts/AuthContext'
 
 const REVIEWS_PER_PAGE = 10
 const GET_ATTRACTION_REVIEWS = gql`
@@ -145,7 +145,7 @@ export default function Reviews(props) {
     }
   )
   const user = useUser()
-  const { handleOpen } = useContext(AuthModalContext)
+  const { handleOpen } = useContext(AuthContext)
   const [modalState, setModalState] = useState(false)
   const openModal = () => {
     if (user) {
@@ -245,7 +245,7 @@ export default function Reviews(props) {
                     />
                   )
                 })}
-                {reviewsData.allResults.length > 0 && (
+                {reviewsData.allResults.length > 0 ? (
                   <Pagination
                     count={Math.ceil(
                       reviewsData.allResults.length / REVIEWS_PER_PAGE
@@ -256,6 +256,8 @@ export default function Reviews(props) {
                     page={page}
                     onChange={changePage}
                   />
+                ) : (
+                  <Typography align="center">Chưa có đánh giá nào</Typography>
                 )}
               </React.Fragment>
             )}

@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import { Icon, IconButton, Tooltip } from '@material-ui/core'
 import { useMutation, gql } from '@apollo/client'
 import { useUser } from '../../utils/hooks'
-import { AuthModalContext } from '../../contexts/AuthModalContext'
+import { AuthContext } from '../../contexts/AuthContext'
 
 const SAVE_ATTRACTION = gql`
   mutation saveAttraction($userId: ID!, $attractionId: ID!) {
@@ -49,7 +49,7 @@ export default function BookmarkButton(props) {
     userInfo,
     onBookmarkChange,
   } = props
-  const { handleOpen } = useContext(AuthModalContext)
+  const { handleOpen } = useContext(AuthContext)
   const user = useUser()
 
   const [isBookMarked, setIsBookMarked] = useState(false)

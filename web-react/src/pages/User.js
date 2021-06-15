@@ -145,7 +145,7 @@ export default function City() {
               </Typography>
             </div>
             <div>
-              {userData?.User[0].id === user.id && (
+              {user && user.id === userData?.User[0].id && (
                 <Button variant="outlined">Sửa hồ sơ</Button>
               )}
             </div>
@@ -159,7 +159,7 @@ export default function City() {
           aria-label="disabled tabs example"
         >
           <Tab label="Đánh giá" {...a11yProps(0)} />
-          {userData?.User[0].id === user.id && (
+          {user && user.id === userData?.User[0].id && (
             <Tab label="Đã lưu" {...a11yProps(1)} />
           )}
         </Tabs>
@@ -168,6 +168,14 @@ export default function City() {
         <div className={classes.reviewList}>
           {userData &&
             userData.User[0].reviews.map((review) => (
+              <UserReviewItem key={review.id} review={review}></UserReviewItem>
+            ))}
+        </div>
+      </TabPanel>
+      <TabPanel value={tab} index={1}>
+        <div className={classes.reviewList}>
+          {userData &&
+            userData.User[0].savedAttractions.map((review) => (
               <UserReviewItem key={review.id} review={review}></UserReviewItem>
             ))}
         </div>

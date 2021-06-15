@@ -6,9 +6,7 @@ import { Box, Grid, Typography, Paper } from '@material-ui/core'
 import { useQuery, useLazyQuery, gql } from '@apollo/client'
 import { imageContainer } from '../styles/image'
 import { useUser, useUserInfo } from '../utils/hooks'
-import { Rating } from '@material-ui/lab'
-import { attractionRating } from '../styles'
-import BookmarkButton from '../components/Attraction/BookmarkButton'
+import HomeAttractionItem from '../components/Home/HomeAttractionItem'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,19 +31,7 @@ const useStyles = makeStyles((theme) => ({
     flexShrink: 0,
     position: 'relative',
   },
-  bookmarkButton: {
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    position: 'absolute',
-    right: theme.spacing(1),
-    top: theme.spacing(1),
-    color: '#fff',
-    zIndex: '1',
-    '&:hover': {
-      backgroundColor: 'rgba(0,0,0,0.6)',
-    },
-  },
   imageContainer,
-  attractionRating,
 }))
 
 const GET_CITY = gql`
@@ -121,40 +107,7 @@ export default function Home() {
       })
     }
   }, [location.pathname])
-  const attractionItem = (attraction) => (
-    <Grid
-      item
-      key={attraction.id}
-      xs={8}
-      sm={4}
-      lg={3}
-      className={classes.gridItem}
-    >
-      <BookmarkButton
-        size="small"
-        userInfo={userInfo}
-        attractionId={attraction.id}
-        className={classes.bookmarkButton}
-        onBookmarkChange={() => {
-          refetchUserInfo()
-        }}
-      ></BookmarkButton>
-      <Link to={'/attraction/' + attraction.id}>
-        <div className={classes.imageContainer}>
-          <img src={attraction.thumbnail.url} alt={attraction.name} />
-        </div>
-        <Box mt={0.5} mb={1}>
-          <div>{attraction.name}</div>
-          <div className={classes.attractionRating}>
-            <Rating value={attraction.avgRating} precision={0.1} readOnly />
-            <Typography component="span">
-              {attraction.totalRating} đánh giá
-            </Typography>
-          </div>
-        </Box>
-      </Link>
-    </Grid>
-  )
+
   return (
     <React.Fragment>
       <HomeMenu></HomeMenu>
@@ -163,9 +116,16 @@ export default function Home() {
           <Box py={3}>
             <Typography variant="h3">Đã xem gần đây</Typography>
             <Grid container className={classes.gridList}>
-              {userData.User[0].recentViews.map((attraction) =>
-                attractionItem(attraction)
-              )}
+              {userData.User[0].recentViews.map((attraction) => (
+                <HomeAttractionItem
+                  key={attraction.id}
+                  attraction={attraction}
+                  userInfo={userInfo}
+                  onBookmarkChange={() => {
+                    refetchUserInfo()
+                  }}
+                ></HomeAttractionItem>
+              ))}
             </Grid>
           </Box>
         )}
@@ -186,7 +146,9 @@ export default function Home() {
                     <div className={classes.imageContainer}>
                       <img src={city.thumbnail?.url} alt={city.name} />
                     </div>
-                    <p>{city.name}</p>
+                    <Box mt={0.5} mb={1}>
+                      {city.name}
+                    </Box>
                   </Link>
                 </Grid>
               ))}
@@ -196,9 +158,16 @@ export default function Home() {
           <Typography variant="h3">Điểm đến hàng đầu</Typography>
           <Grid container className={classes.gridList}>
             {attractionData &&
-              attractionData.HotAttractions.map((attraction) =>
-                attractionItem(attraction)
-              )}
+              attractionData.HotAttractions.map((attraction) => (
+                <HomeAttractionItem
+                  key={attraction.id}
+                  attraction={attraction}
+                  userInfo={userInfo}
+                  onBookmarkChange={() => {
+                    refetchUserInfo()
+                  }}
+                ></HomeAttractionItem>
+              ))}
           </Grid>
         </Box>
       </Paper>

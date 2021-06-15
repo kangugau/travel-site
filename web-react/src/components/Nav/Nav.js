@@ -18,88 +18,17 @@ import {
   MenuItem,
   useMediaQuery,
 } from '@material-ui/core'
-import Search from './Search'
+import Search from '../Search'
 import clsx from 'clsx'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
-import { deepOrange } from '@material-ui/core/colors'
-import LoginModal from './Auth/LoginModal'
-import RegisterModal from './Auth/RegisterModal'
+import navCss from './Nav.css'
+import LoginModal from '../Auth/LoginModal'
+import RegisterModal from '../Auth/RegisterModal'
 import { Link } from 'react-router-dom'
-import { useUser } from '../utils/hooks'
-import { AuthModalContext } from '../contexts/AuthModalContext'
+import { useUser } from '../../utils/hooks'
+import { AuthContext } from '../../contexts/AuthContext'
 
-const useStyles = makeStyles((theme) => ({
-  toolbar: {
-    justifyContent: 'space-between',
-  },
-  toolbarLeft: {
-    display: 'flex',
-    alignItems: 'center',
-    flexGrow: 1,
-    '@media only screen and (max-width: 600px)': {
-      flexGrow: 'unset',
-    },
-  },
-  appBar: {
-    zIndex: theme.zIndex.drawer + 1,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    backgroundColor: '#ffffff',
-  },
-  title: {
-    color: '#000000',
-  },
-  drawer: {
-    width: '250px',
-    maxWidth: '90vw',
-    padding: theme.spacing(2),
-  },
-  appBarImage: {
-    maxHeight: '50px',
-    '@media (min-width: 600px)': {
-      paddingRight: '20px',
-    },
-  },
-  button: {
-    marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(1),
-  },
-  modal: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  modalContent: {
-    width: '350px',
-    maxWidth: '90vw',
-    padding: theme.spacing(2),
-    textAlign: 'center',
-  },
-  orange: {
-    color: theme.palette.getContrastText(deepOrange[500]),
-    backgroundColor: deepOrange[500],
-  },
-  avatar: {
-    padding: theme.spacing(1),
-  },
-  seperator: {
-    borderBottom: '1px solid',
-    borderBottomColor: theme.palette.grey[500],
-    marginTop: theme.spacing(0.5),
-    marginBottom: theme.spacing(0.5),
-  },
-  verticalAlignMiddle: {
-    verticalAlign: 'middle',
-  },
-  iconButton: {
-    marginRight: theme.spacing(0.5),
-  },
-  navItem: {
-    marginRight: theme.spacing(2),
-  },
-}))
+const useStyles = makeStyles(navCss)
 
 export default function Nav() {
   const classes = useStyles()
@@ -113,12 +42,13 @@ export default function Nav() {
     }
   }, [user])
 
+  const isAdmin = user && user.roles?.includes('ADMIN')
   const theme = useTheme()
   const xsDown = useMediaQuery(theme.breakpoints.down('xs'))
 
   // auth modal
   const { modalOpen, isLoginModal, handleClose, handleOpen } = useContext(
-    AuthModalContext
+    AuthContext
   )
 
   // profile menu
@@ -128,6 +58,15 @@ export default function Nav() {
   }
   const closeProfileMenu = () => {
     setAnchorEl(null)
+  }
+
+  // admin menu
+  const [adminAnchorEl, setAdminAnchorEl] = React.useState(null)
+  const openAdminMenu = (event) => {
+    setAdminAnchorEl(event.currentTarget)
+  }
+  const closeAdminMenu = () => {
+    setAdminAnchorEl(null)
   }
 
   const logout = () => {
@@ -194,28 +133,74 @@ export default function Nav() {
           </Box>
           {!xsDown && (
             <React.Fragment>
-              <Button
-                variant="contained"
+              {isAdmin && (
+                <>
+                  <Button
+                    aria-controls="simple-menu"
+                    aria-haspopup="true"
+                    variant="outlined"
+                    className={classes.navItem}
+                    onClick={openAdminMenu}
+                  >
+                    <Icon className={classes.iconButton}>
+                      admin_panel_settings
+                    </Icon>
+                    Admin menu
+                  </Button>
+                  <Menu
+                    id="simple-menu"
+                    anchorEl={adminAnchorEl}
+                    keepMounted
+                    open={Boolean(adminAnchorEl)}
+                    onClose={closeAdminMenu}
+                  >
+                    <MenuItem onClick={closeAdminMenu}>
+                      <Link to="/attraction/add">
+                        <Icon className={classes.iconButton}>add_location</Icon>
+                        Thêm địa điểm mới
+                      </Link>
+                    </MenuItem>
+                    <MenuItem onClick={closeAdminMenu}>
+                      <Link to="/category">
+                        <Icon className={classes.iconButton}>category</Icon>
+                        Quản lý danh mục
+                      </Link>
+                    </MenuItem>
+                    <MenuItem onClick={closeAdminMenu}>
+                      <Link to="/type">
+                        <Icon className={classes.iconButton}>museum</Icon>
+                        Quản lý thể loại
+                      </Link>
+                    </MenuItem>
+                  </Menu>
+                </>
+              )}
+              {/* <Button
+                variant="outlined"
                 className={classes.navItem}
                 color="primary"
               >
                 <Icon className={classes.iconButton}>bookmarks</Icon>Đã lưu
-              </Button>
+              </Button> */}
             </React.Fragment>
           )}
 
-          <Box display="flex">
+          <Box display="flex" alignItems="center">
             {!xsDown ? (
               !user ? (
                 authButtons
               ) : (
                 <React.Fragment>
-                  <IconButton
-                    className={classes.avatar}
-                    onClick={openProfileMenu}
-                  >
+                  <Button className={classes.avatar} onClick={openProfileMenu}>
                     <Avatar className={classes.orange}></Avatar>
-                  </IconButton>
+                    <Typography
+                      variant="h6"
+                      component="span"
+                      className={classes.displayName}
+                    >
+                      {user.displayName}
+                    </Typography>
+                  </Button>
                   <Menu
                     id="profile-menu"
                     anchorEl={anchorEl}
@@ -263,7 +248,7 @@ export default function Nav() {
                     component="span"
                     className={classes.verticalAlignMiddle}
                   >
-                    {user.username}
+                    {user.displayName}
                   </Typography>
                 </Link>
               </Box>

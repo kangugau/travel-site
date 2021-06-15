@@ -236,11 +236,11 @@ export default function Attraction() {
                 </React.Fragment>
               </Grid>
               <Grid item xs={12} sm={12} md={7}>
-                {
+                {attractionData.Attraction[0].thumbnail && (
                   <div className={classes.imageContainer}>
                     <img src={attractionData.Attraction[0].thumbnail.url}></img>
                   </div>
-                }
+                )}
               </Grid>
             </Grid>
           </Paper>

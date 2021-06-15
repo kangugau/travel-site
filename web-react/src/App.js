@@ -1,14 +1,20 @@
 import React, { useState } from 'react'
 
-import { Switch, Route, BrowserRouter as Router } from 'react-router-dom'
+import {
+  Switch,
+  Route,
+  BrowserRouter as Router,
+  Redirect,
+} from 'react-router-dom'
 
 import Nav from './components/Nav'
 import Home from './pages/Home'
 import City from './pages/City'
 import Attraction from './pages/Attraction'
 import User from './pages/User'
+import ManageCategory from './pages/ManageCategory'
 
-import { AuthModalContext } from './contexts/AuthModalContext'
+import { AuthContext } from './contexts/AuthContext'
 
 import {
   makeStyles,
@@ -27,6 +33,8 @@ import moment from 'moment'
 import 'moment/locale/vi'
 import { MuiPickersUtilsProvider } from '@material-ui/pickers'
 import MomentUtils from '@date-io/moment'
+
+import jwtDecode from 'jwt-decode'
 
 moment.locale('vi')
 
@@ -107,6 +115,13 @@ function App() {
   const classes = useStyles()
   const [modalOpen, setModalOpen] = useState(false)
   const [isLoginModal, setIsLoginModal] = useState(false)
+
+  const token = localStorage.getItem('token')
+  let user = null
+  if (token) {
+    user = jwtDecode(token)
+  }
+  const isAdmin = user && user.roles?.includes('ADMIN')
   const handleOpen = (isLoginModal) => {
     setIsLoginModal(isLoginModal)
     setModalOpen(true)
@@ -118,8 +133,8 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <Router>
-        <AuthModalContext.Provider
-          value={{ modalOpen, isLoginModal, handleOpen, handleClose }}
+        <AuthContext.Provider
+          value={{ user, modalOpen, isLoginModal, handleOpen, handleClose }}
         >
           <MuiPickersUtilsProvider utils={MomentUtils}>
             <Typography component="div" className={classes.root}>
@@ -137,6 +152,13 @@ function App() {
                       component={Attraction}
                     />
                     <Route exact path="/user/:id" component={User} />
+                    <Route
+                      exact
+                      path="/category"
+                      render={() =>
+                        isAdmin ? <ManageCategory /> : <Redirect to="/" />
+                      }
+                    />
                   </Switch>
 
                   {/* <Box pt={4}><Copyright /></Box> */}
@@ -144,7 +166,7 @@ function App() {
               </main>
             </Typography>
           </MuiPickersUtilsProvider>
-        </AuthModalContext.Provider>
+        </AuthContext.Provider>
       </Router>
     </ThemeProvider>
   )

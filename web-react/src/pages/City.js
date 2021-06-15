@@ -19,6 +19,7 @@ import { useParams } from 'react-router-dom'
 import AttractionItem from '../components/City/AttractionItem'
 import AttractionFilter from '../components/City/AttractionFilter'
 import Loading from '../components/Loading'
+import { imageContainer } from '../styles'
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -67,6 +68,7 @@ const useStyles = makeStyles((theme) => ({
     right: 0,
     top: 0,
   },
+  imageContainer,
 }))
 const ATTRACTION_PER_PAGE = 10
 const GET_CITY = gql`

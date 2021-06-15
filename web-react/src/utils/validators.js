@@ -59,5 +59,13 @@ export function useValidator(rules) {
     }
     return false
   }
-  return { errors, validate, hasErr }
+  const resetErr = () => {
+    setErrors(
+      Object.keys(rules).reduce((prev, curr) => {
+        prev[curr] = []
+        return prev
+      }, {})
+    )
+  }
+  return { errors, validate, hasErr, resetErr }
 }

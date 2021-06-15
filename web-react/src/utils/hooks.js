@@ -1,15 +1,10 @@
-import jwtDecode from 'jwt-decode'
-
 import { useLazyQuery, gql } from '@apollo/client'
-import { useEffect } from 'react'
+import { useEffect, useContext } from 'react'
+
+import { AuthContext } from '../contexts/AuthContext'
 
 export function useUser() {
-  const token = localStorage.getItem('token')
-  let user
-  if (token) {
-    user = jwtDecode(token)
-  }
-  return user
+  return useContext(AuthContext).user
 }
 
 const GET_USER_INFO = gql`

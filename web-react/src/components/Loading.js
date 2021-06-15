@@ -11,7 +11,7 @@ export default function Loading() {
   return (
     <Box
       width="100%"
-      minHeight="50px"
+      minHeight="150px"
       display="flex"
       justifyContent="center"
       alignItems="center"

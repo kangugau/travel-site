@@ -1,6 +1,7 @@
 import React from 'react'
 
-export const AuthModalContext = React.createContext({
+export const AuthContext = React.createContext({
+  user: null,
   modalOpen: false,
   isLoginModal: false,
   handleOpen: () => {},

@@ -242,7 +242,7 @@ export default function AttractionFilter(props) {
                         <Checkbox
                           checked={true}
                           onChange={(event, checked) => {
-                            onTypeCheckboxChange(checked, type.id)
+                            onTypeCheckboxChange(checked, type)
                           }}
                         />
                       }
@@ -265,7 +265,7 @@ export default function AttractionFilter(props) {
                         <Checkbox
                           checked={isTypeChecked(type.id)}
                           onChange={(event, checked) => {
-                            onTypeCheckboxChange(checked, type.id)
+                            onTypeCheckboxChange(checked, type)
                           }}
                         />
                       }
