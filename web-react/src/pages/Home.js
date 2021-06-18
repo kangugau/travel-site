@@ -45,8 +45,6 @@ const GET_CITY = gql`
       id
       name
       thumbnail {
-        width
-        height
         url
       }
     }
@@ -54,22 +52,64 @@ const GET_CITY = gql`
 `
 
 const GET_USER = gql`
-  query getRecentViews($first: Int, $filter: _UserFilter) {
-    User(first: $first, filter: $filter) {
+  query getUserPreference($first: Int, $userId: ID!) {
+    User(first: $first, filter: { id: $userId }) {
       recentViews {
         id
         name
         thumbnail {
-          width
-          height
           url
         }
         avgRating
         totalRating
       }
     }
+    RecommendedAttractions(userId: $userId) {
+      id
+      name
+      thumbnail {
+        url
+      }
+      avgRating
+      totalRating
+    }
   }
 `
+const GET_RECENT_SIMILARS = gql`
+  query getRecentSimilars(
+    $attractionId: ID!
+    $first: Int
+    $offset: Int
+    $orderBy: [_AttractionOrdering]
+    $filter: _AttractionFilter
+  ) {
+    Attraction(
+      id: $attractionId
+      first: $first
+      offset: $offset
+      orderBy: $orderBy
+      filter: $filter
+    ) {
+      name
+      similars(first: 10) {
+        id
+        name
+        avgRating
+        totalRating
+        city {
+          name
+        }
+        types {
+          name
+        }
+        thumbnail {
+          url
+        }
+      }
+    }
+  }
+`
+
 const GET_HOT_ATTRACTION = gql`
   query getHotAttractions($first: Int) {
     HotAttractions(first: $first) {
@@ -94,19 +134,28 @@ export default function Home() {
   const [getUser, { data: userData }] = useLazyQuery(GET_USER, {
     fetchPolicy: 'network-only',
   })
+  const [getRecentSimilars, { data: recentSimilarsData }] = useLazyQuery(
+    GET_RECENT_SIMILARS
+  )
   const { data: cityData } = useQuery(GET_CITY)
   const { data: attractionData } = useQuery(GET_HOT_ATTRACTION)
   useEffect(() => {
     if (user) {
       getUser({
         variables: {
-          filter: {
-            id: user.id,
-          },
+          userId: user.id,
         },
       })
     }
   }, [location.pathname])
+
+  useEffect(() => {
+    if (userData && userData.User[0]?.recentViews[0]) {
+      getRecentSimilars({
+        variables: { attractionId: userData.User[0].recentViews[0].id },
+      })
+    }
+  }, [userData])
 
   return (
     <React.Fragment>
@@ -117,6 +166,42 @@ export default function Home() {
             <Typography variant="h3">Đã xem gần đây</Typography>
             <Grid container className={classes.gridList}>
               {userData.User[0].recentViews.map((attraction) => (
+                <HomeAttractionItem
+                  key={attraction.id}
+                  attraction={attraction}
+                  userInfo={userInfo}
+                  onBookmarkChange={() => {
+                    refetchUserInfo()
+                  }}
+                ></HomeAttractionItem>
+              ))}
+            </Grid>
+          </Box>
+        )}
+        {userData?.RecommendedAttractions?.length && (
+          <Box py={3}>
+            <Typography variant="h3">Mọi người cũng thích</Typography>
+            <Grid container className={classes.gridList}>
+              {userData.RecommendedAttractions.map((attraction) => (
+                <HomeAttractionItem
+                  key={attraction.id}
+                  attraction={attraction}
+                  userInfo={userInfo}
+                  onBookmarkChange={() => {
+                    refetchUserInfo()
+                  }}
+                ></HomeAttractionItem>
+              ))}
+            </Grid>
+          </Box>
+        )}
+        {recentSimilarsData?.Attraction?.length && (
+          <Box py={3}>
+            <Typography variant="h3">
+              Tương tự với {recentSimilarsData?.Attraction[0]?.name}
+            </Typography>
+            <Grid container className={classes.gridList}>
+              {recentSimilarsData.Attraction[0].similars.map((attraction) => (
                 <HomeAttractionItem
                   key={attraction.id}
                   attraction={attraction}

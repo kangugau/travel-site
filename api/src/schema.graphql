@@ -112,10 +112,10 @@ type User {
   hometown: City @relation(name:"LIVE_IN", direction: OUT)
   roles: [Role]
   reviews: [Review] @relation(name: "WROTE", direction: OUT)
-  recentViews(first: Int = 10): [Attraction] @cypher(statement:"""
+  recentViews(first: Int = 10, offset: Int = 0): [Attraction] @cypher(statement:"""
     MATCH (this)-[r:VIEWED]->(a:Attraction) 
     RETURN a 
-    ORDER BY r.lastViewedDate DESC LIMIT toInteger($first)
+    ORDER BY r.lastViewedDate DESC SKIP toInteger($offset) LIMIT toInteger($first)
   """)
   savedAttractions: [Attraction] @relation(name: "SAVED", direction: OUT)
 }
@@ -134,6 +134,11 @@ type RatingCount {
   count: Int!
 }
 
+type NearByAttraction {
+  attraction: Attraction
+  distance: Float
+}
+
 type Query {
   RecommendedAttractions(userId: ID!): [Attraction]! @cypher(statement:"""
     MATCH (u1:User{id: $userId})-[:WROTE]->(r1:Review)-[:REVIEWS]->(a1:Attraction)
@@ -143,7 +148,6 @@ type Query {
     MATCH (u2:User)-[:WROTE]->(r2:Review)-[:REVIEWS]->(a2:Attraction) WHERE u2<>u1
     WITH u1, u1Vector, u2, a2, avg(r2.rating) AS rating
     WITH u1, u1Vector, u2, gds.alpha.similarity.asVector(a2, rating) AS u2Vector
-    WHERE size(apoc.coll.intersection([x in u1Vector | x.category], [y in u2Vector | y.category])) > 5
     WITH u1, u2,  gds.alpha.similarity.pearson(u1Vector, u2Vector, {vectorType:"maps"}) AS similarity
     ORDER BY similarity DESC limit 10
 
@@ -162,6 +166,8 @@ type Query {
     CALL db.index.fulltext.queryNodes("name", $keyword) YIELD node, score
     RETURN node ORDER BY score DESC
   """)
+
+  AttractionsNearBy(attractionId: ID!, first: Int = 10): [NearByAttraction]
 }
 
 type Mutation {

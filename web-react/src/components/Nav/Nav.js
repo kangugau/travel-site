@@ -138,7 +138,6 @@ export default function Nav() {
                   <Button
                     aria-controls="simple-menu"
                     aria-haspopup="true"
-                    variant="outlined"
                     className={classes.navItem}
                     onClick={openAdminMenu}
                   >
@@ -146,6 +145,7 @@ export default function Nav() {
                       admin_panel_settings
                     </Icon>
                     Admin menu
+                    <Icon>expand_more</Icon>
                   </Button>
                   <Menu
                     id="simple-menu"
@@ -175,13 +175,9 @@ export default function Nav() {
                   </Menu>
                 </>
               )}
-              {/* <Button
-                variant="outlined"
-                className={classes.navItem}
-                color="primary"
-              >
+              <Button variant="outlined" className={classes.navItem}>
                 <Icon className={classes.iconButton}>bookmarks</Icon>Đã lưu
-              </Button> */}
+              </Button>
             </React.Fragment>
           )}
 

@@ -12,7 +12,7 @@ import {
 } from '@material-ui/core'
 import Rating from '@material-ui/lab/Rating'
 import { useMutation, gql } from '@apollo/client'
-import MiniAttractionItem from './MiniAttractionItem'
+import MiniAttractionItem from '../MiniAttractionItem'
 
 import moment from 'moment'
 import { useUser } from '../../utils/hooks'

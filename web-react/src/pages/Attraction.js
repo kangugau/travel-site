@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import { Grid, Typography, Box, Icon, Paper } from '@material-ui/core'
+import { Grid, Typography, Box, Icon, Paper, Divider } from '@material-ui/core'
 import { useParams, Link, useLocation } from 'react-router-dom'
 import Rating from '@material-ui/lab/Rating'
 import { useQuery, useMutation, gql } from '@apollo/client'
@@ -11,6 +11,7 @@ import moment from 'moment'
 import Map from '../components/Map'
 import clsx from 'clsx'
 import BookmarkButton from '../components/Attraction/BookmarkButton'
+import MiniAttractionItem from '../components/MiniAttractionItem'
 
 const GET_ATTRACTION_DETAIL = gql`
   query getAttractionDetail(
@@ -57,15 +58,36 @@ const GET_ATTRACTION_DETAIL = gql`
         height
         url
       }
-      similars {
+      similarsNearBy(first: 4) {
         id
         name
         avgRating
-        types {
-          id
+        totalRating
+        city {
           name
         }
+        types {
+          name
+        }
+        thumbnail {
+          url
+        }
       }
+    }
+    AttractionsNearBy(attractionId: $attractionId, first: 4) {
+      attraction {
+        name
+        id
+        avgRating
+        totalRating
+        types {
+          name
+        }
+        thumbnail {
+          url
+        }
+      }
+      distance
     }
   }
 `
@@ -118,6 +140,13 @@ const useStyles = makeStyles((theme) => ({
   },
   activeBookmark: {
     color: theme.palette.warning.main,
+  },
+  similars: {
+    marginTop: '12px',
+  },
+  nearBy: {
+    flexWrap: 'wrap',
+    marginTop: '12px',
   },
   imageContainer,
   attractionRating,
@@ -218,15 +247,21 @@ export default function Attraction() {
                             key={type.id}
                             to={'/city/' + attractionData.Attraction[0].city.id}
                           >
-                            <Typography component="span">
+                            <Box component="span" fontWeight={500}>
                               {type.name}
-                            </Typography>
+                            </Box>
                           </Link>
                         )
                       })
                       .reduce((prev, curr) => [prev, ', ', curr])}
                   </Box>
-                  <Box my={1}>
+                  <Box mt={2}>
+                    Khu phố cổ là nơi hội tụ của 36 phố phường buôn bán sầm uất
+                    có bề dày gần một ngàn năm lịch sử. Mỗi tên phố thường mang
+                    đặc trưng của một ngành nghề thủ công truyền thống như: Hàng
+                    Bông, Hàng Gai, Lò Rèn, Hàng Đường,...
+                  </Box>
+                  <Box my={2}>
                     <Icon className={classes.icon}>location_on</Icon>
                     <Box component="span" fontWeight={500} mr={0.5}>
                       Địa chỉ:
@@ -244,8 +279,42 @@ export default function Attraction() {
               </Grid>
             </Grid>
           </Paper>
-          <Box mt={3}>
-            <Map marker={{ ...attractionData.Attraction[0].location }}></Map>
+          <Box mt={3} mb={5}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={12} md={6}>
+                <Map
+                  marker={{ ...attractionData.Attraction[0].location }}
+                ></Map>
+              </Grid>
+              <Grid item xs={12} sm={12} md={6}>
+                <Typography variant="h4">Địa điểm lân cận</Typography>
+                <Grid container spacing={2} className={classes.nearBy}>
+                  {attractionData?.AttractionsNearBy?.map((item) => (
+                    <Grid item xs={6} sm={6} md={6} key={item.attraction.id}>
+                      <MiniAttractionItem
+                        attraction={item.attraction}
+                        tallImg={true}
+                        distance={item.distance}
+                      ></MiniAttractionItem>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Grid>
+            </Grid>
+          </Box>
+          <Divider></Divider>
+          <Box mt={5}>
+            <Typography variant="h4">Có thể bạn sẽ thích</Typography>
+            <Grid container spacing={2} className={classes.similars}>
+              {attractionData?.Attraction[0]?.similarsNearBy?.map((item) => (
+                <Grid item xs={6} sm={3} md={3} key={item.id}>
+                  <MiniAttractionItem
+                    attraction={item}
+                    tallImg={true}
+                  ></MiniAttractionItem>
+                </Grid>
+              ))}
+            </Grid>
           </Box>
           <Box mt={5}>
             <Reviews
