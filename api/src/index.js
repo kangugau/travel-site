@@ -4,7 +4,11 @@ import express from 'express'
 import neo4j from 'neo4j-driver'
 import { makeAugmentedSchema } from 'neo4j-graphql-js'
 import dotenv from 'dotenv'
-import { initializeDatabase } from './initialize'
+// import { initializeDatabase } from './initialize'
+import cookieParser from 'cookie-parser'
+import { schemaDirectives } from './schema/directives'
+import resolvers from './schema/resolvers'
+import { verifyToken } from './utils'
 
 // set environment variables from .env
 dotenv.config()
@@ -21,14 +25,20 @@ const app = express()
 
 const schema = makeAugmentedSchema({
   typeDefs,
+  resolvers,
   config: {
     query: {
-      exclude: [],
+      exclude: ['RatingCount', 'LoginUser'],
     },
     mutation: {
-      exclude: [],
+      exclude: ['RatingCount', 'LoginUser'],
+    },
+    auth: {
+      isAuthenticated: true,
+      hasRole: true,
     },
   },
+  schemaDirectives,
 })
 
 /*
@@ -52,9 +62,9 @@ const driver = neo4j.driver(
  * creating constraints or ensuring indexes are online
  *
  */
-const init = async (driver) => {
-  await initializeDatabase(driver)
-}
+// const init = async (driver) => {
+//   await initializeDatabase(driver)
+// }
 
 /*
  * We catch any errors that occur during initialization
@@ -64,7 +74,7 @@ const init = async (driver) => {
  * have occurred
  */
 
-init(driver)
+// init(driver)
 
 /*
  * Create a new ApolloServer instance, serving the GraphQL schema
@@ -73,7 +83,16 @@ init(driver)
  * generated resolvers to connect to the database.
  */
 const server = new ApolloServer({
-  context: { driver, neo4jDatabase: process.env.NEO4J_DATABASE },
+  context: ({ req }) => {
+    const token = req.headers.authorization || ''
+    const user = verifyToken(token)
+    return {
+      user,
+      cypherParams: { currentUser: user },
+      driver,
+      neo4jDatabase: process.env.NEO4J_DATABASE,
+    }
+  },
   schema: schema,
   introspection: true,
   playground: true,
@@ -90,6 +109,11 @@ const host = process.env.GRAPHQL_SERVER_HOST || '0.0.0.0'
  */
 server.applyMiddleware({ app, path })
 
-app.listen({ host, port, path }, () => {
+// body parser
+app.use(express.json())
+app.use(express.urlencoded())
+app.use(cookieParser())
+
+app.listen({ host, port }, () => {
   console.log(`GraphQL server ready at http://${host}:${port}${path}`)
 })

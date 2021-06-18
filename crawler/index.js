@@ -27,6 +27,7 @@ async function getCityDesc(city = 'hanoi') {
         descriptionTitle: newData.geoDescription?.title.localizedString,
         descriptionDetail: newData.geoDescription?.description.localizedString,
         descriptionAlt: newData.locations[0].toolDescription,
+        thumbnail: newData.topPhotos[0].photos[0].photo.photoSizes.pop(),
       },
     }
     fs.writeFile(`./data/cities.json`, JSON.stringify(data, null, 2), (err) => {
@@ -157,4 +158,3 @@ async function getData() {
 }
 
 getData()
-// getReviews()

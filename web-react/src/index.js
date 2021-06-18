@@ -3,10 +3,29 @@ import ReactDOM from 'react-dom'
 import './index.css'
 import App from './App'
 import registerServiceWorker from './registerServiceWorker'
-import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client'
+import {
+  ApolloProvider,
+  ApolloClient,
+  InMemoryCache,
+  createHttpLink,
+} from '@apollo/client'
+import { setContext } from '@apollo/client/link/context'
 
-const client = new ApolloClient({
+const httpLink = createHttpLink({
   uri: process.env.REACT_APP_GRAPHQL_URI || '/graphql',
+})
+
+const authLink = setContext((_, { headers }) => {
+  const token = localStorage.getItem('token') // here we are storing the JWT in localStorage
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? token : '',
+    },
+  }
+})
+const client = new ApolloClient({
+  link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
 })
 

@@ -1,234 +1,174 @@
-import React from 'react'
+import React, { useState } from 'react'
 
-import { Switch, Route, BrowserRouter as Router } from 'react-router-dom'
+import {
+  Switch,
+  Route,
+  BrowserRouter as Router,
+  Redirect,
+} from 'react-router-dom'
 
-import UserList from './components/UserList'
+import Nav from './components/Nav'
+import Home from './pages/Home'
+import City from './pages/City'
+import Attraction from './pages/Attraction'
+import User from './pages/User'
+import ManageCategory from './pages/ManageCategory'
 
-import clsx from 'clsx'
-import { makeStyles } from '@material-ui/core/styles'
+import { AuthContext } from './contexts/AuthContext'
+
+import {
+  makeStyles,
+  createMuiTheme,
+  responsiveFontSizes,
+} from '@material-ui/core/styles'
+import { blue, teal, grey } from '@material-ui/core/colors'
 import {
   CssBaseline,
-  Drawer,
-  Box,
-  AppBar,
-  Toolbar,
-  List,
-  Typography,
-  Divider,
-  IconButton,
   Container,
-  Link as MUILink,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
+  ThemeProvider,
+  Typography,
 } from '@material-ui/core'
-import { Link } from 'react-router-dom'
-import {
-  ChevronLeft as ChevronLeftIcon,
-  Menu as MenuIcon,
-  Dashboard as DashboardIcon,
-  People as PeopleIcon,
-} from '@material-ui/icons'
-import Dashboard from './components/Dashboard'
 
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      <MUILink color="inherit" href="https://grandstack.io/">
-        Your GRANDstack App Name Here
-      </MUILink>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  )
-}
+import moment from 'moment'
+import 'moment/locale/vi'
+import { MuiPickersUtilsProvider } from '@material-ui/pickers'
+import MomentUtils from '@date-io/moment'
 
-const drawerWidth = 240
+import jwtDecode from 'jwt-decode'
+
+moment.locale('vi')
+
+let theme = createMuiTheme({
+  palette: {
+    primary: blue,
+    info: teal,
+  },
+  overrides: {
+    MuiButton: {
+      root: {
+        textTransform: 'none',
+        transition: '0.25s',
+      },
+    },
+    MuiCssBaseline: {
+      '@global': {
+        '*::-webkit-scrollbar': {
+          width: '8px',
+          height: '8px',
+        },
+        '::-webkit-scrollbar-track': {
+          background: grey[300],
+          borderRadius: '4px',
+        },
+        '::-webkit-scrollbar-thumb': {
+          background: grey[400],
+          borderRadius: '4px',
+        },
+        '::-webkit-scrollbar-thumb:hover': {
+          background: grey[500],
+        },
+      },
+    },
+    MuiIcon: {
+      root: {
+        verticalAlign: 'middle',
+      },
+    },
+    MuiContainer: {
+      root: {
+        '@media (max-width: 600px)': {
+          paddingLeft: 0,
+          paddingRight: 0,
+        },
+      },
+    },
+  },
+  typography: {
+    fontSize: 12,
+  },
+})
+theme = responsiveFontSizes(theme)
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
   },
-  toolbar: {
-    paddingRight: 24, // keep right padding when drawer closed
-  },
-  toolbarIcon: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    padding: '0 8px',
-    ...theme.mixins.toolbar,
-  },
-  appBar: {
-    zIndex: theme.zIndex.drawer + 1,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-  },
-  appBarShift: {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  menuButton: {
-    marginRight: 36,
-  },
-  menuButtonHidden: {
-    display: 'none',
-  },
   title: {
-    flexGrow: 1,
-  },
-  drawerPaper: {
-    position: 'relative',
-    whiteSpace: 'nowrap',
-    width: drawerWidth,
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  drawerPaperClose: {
-    overflowX: 'hidden',
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    width: theme.spacing(7),
-    [theme.breakpoints.up('sm')]: {
-      width: theme.spacing(9),
-    },
+    color: '#000000',
   },
   appBarSpacer: theme.mixins.toolbar,
   content: {
     flexGrow: 1,
-    height: '100vh',
     overflow: 'auto',
   },
   container: {
     paddingTop: theme.spacing(4),
     paddingBottom: theme.spacing(4),
-  },
-  paper: {
-    padding: theme.spacing(2),
-    display: 'flex',
-    overflow: 'auto',
-    flexDirection: 'column',
-  },
-  fixedHeight: {
-    height: 240,
-  },
-  navLink: {
-    textDecoration: 'none',
-    color: 'inherit',
-  },
-  appBarImage: {
-    maxHeight: '75px',
-    paddingRight: '20px',
+    '@media (max-width: 600px)': {
+      paddingTop: theme.spacing(2),
+      paddingBottom: theme.spacing(2),
+    },
   },
 }))
 
-export default function App() {
+function App() {
   const classes = useStyles()
-  const [open, setOpen] = React.useState(true)
-  const handleDrawerOpen = () => {
-    setOpen(true)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [isLoginModal, setIsLoginModal] = useState(false)
+
+  const token = localStorage.getItem('token')
+  let user = null
+  if (token) {
+    user = jwtDecode(token)
   }
-  const handleDrawerClose = () => {
-    setOpen(false)
+  const isAdmin = user && user.roles?.includes('ADMIN')
+  const handleOpen = (isLoginModal) => {
+    setIsLoginModal(isLoginModal)
+    setModalOpen(true)
+  }
+  const handleClose = () => {
+    setModalOpen(false)
   }
 
   return (
-    <Router>
-      <div className={classes.root}>
-        <CssBaseline />
-        <AppBar
-          position="absolute"
-          className={clsx(classes.appBar, open && classes.appBarShift)}
+    <ThemeProvider theme={theme}>
+      <Router>
+        <AuthContext.Provider
+          value={{ user, modalOpen, isLoginModal, handleOpen, handleClose }}
         >
-          <Toolbar className={classes.toolbar}>
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="open drawer"
-              onClick={handleDrawerOpen}
-              className={clsx(
-                classes.menuButton,
-                open && classes.menuButtonHidden
-              )}
-            >
-              <MenuIcon />
-            </IconButton>
-            <img
-              className={classes.appBarImage}
-              src="img/grandstack.png"
-              alt="GRANDstack logo"
-            />
-            <Typography
-              component="h1"
-              variant="h6"
-              color="inherit"
-              noWrap
-              className={classes.title}
-            >
-              Welcome To GRANDstack App
+          <MuiPickersUtilsProvider utils={MomentUtils}>
+            <Typography component="div" className={classes.root}>
+              <CssBaseline />
+              <Nav></Nav>
+              <main className={classes.content}>
+                <div className={classes.appBarSpacer} />
+                <Container maxWidth="lg" className={classes.container}>
+                  <Switch>
+                    <Route exact path="/" component={Home} />
+                    <Route exact path="/city/:id" component={City} />
+                    <Route
+                      exact
+                      path="/attraction/:id"
+                      component={Attraction}
+                    />
+                    <Route exact path="/user/:id" component={User} />
+                    <Route
+                      exact
+                      path="/category"
+                      render={() =>
+                        isAdmin ? <ManageCategory /> : <Redirect to="/" />
+                      }
+                    />
+                  </Switch>
+
+                  {/* <Box pt={4}><Copyright /></Box> */}
+                </Container>
+              </main>
             </Typography>
-          </Toolbar>
-        </AppBar>
-        <Drawer
-          variant="permanent"
-          classes={{
-            paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
-          }}
-          open={open}
-        >
-          <div className={classes.toolbarIcon}>
-            <IconButton onClick={handleDrawerClose}>
-              <ChevronLeftIcon />
-            </IconButton>
-          </div>
-          <Divider />
-          <List>
-            <Link to="/" className={classes.navLink}>
-              <ListItem button>
-                <ListItemIcon>
-                  <DashboardIcon />
-                </ListItemIcon>
-                <ListItemText primary="Dashboard" />
-              </ListItem>
-            </Link>
-
-            <Link to="/users" className={classes.navLink}>
-              <ListItem button>
-                <ListItemIcon>
-                  <PeopleIcon />
-                </ListItemIcon>
-                <ListItemText primary="Users" />
-              </ListItem>
-            </Link>
-          </List>
-          <Divider />
-        </Drawer>
-        <main className={classes.content}>
-          <div className={classes.appBarSpacer} />
-          <Container maxWidth="lg" className={classes.container}>
-            <Switch>
-              <Route exact path="/" component={Dashboard} />
-              <Route exact path="/businesses" component={UserList} />
-              <Route exact path="/users" component={UserList} />
-            </Switch>
-
-            <Box pt={4}>
-              <Copyright />
-            </Box>
-          </Container>
-        </main>
-      </div>
-    </Router>
+          </MuiPickersUtilsProvider>
+        </AuthContext.Provider>
+      </Router>
+    </ThemeProvider>
   )
 }
+export default App
