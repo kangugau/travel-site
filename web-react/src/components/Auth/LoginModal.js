@@ -52,6 +52,7 @@ export default function LoginModal(props) {
       console.log(data)
       localStorage.setItem('token', data.data.LoginUser.token)
       props.handleClose()
+      window.location.reload()
     } catch (error) {
       console.log(error)
     }
@@ -59,7 +60,7 @@ export default function LoginModal(props) {
   return (
     <React.Fragment>
       {loginError && (
-        <Box color="warning.main">Tài khoản hoặc mật khẩu không đúng</Box>
+        <Box color="error.main">Tài khoản hoặc mật khẩu không đúng</Box>
       )}
       <TextField
         type="email"

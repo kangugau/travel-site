@@ -72,7 +72,7 @@ export default function RegisterModal(props) {
   return (
     <React.Fragment>
       {registerError && (
-        <Box py={1} color="warning.main">
+        <Box py={1} color="error.main">
           {registerError.message}
         </Box>
       )}

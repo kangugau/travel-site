@@ -23,7 +23,7 @@
     "express-jwt": "^6.0.0",
     "jsonwebtoken": "^8.5.1",
     "neo4j-driver": "^4.0.2",
-    "neo4j-graphql-js": "^2.14.2",
+    "neo4j-graphql-js": "^2.19.1",
     "node-fetch": "^2.6.0",
     "react": "^16.13.1"
   },

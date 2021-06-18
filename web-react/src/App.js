@@ -1,13 +1,20 @@
-import React from 'react'
+import React, { useState } from 'react'
 
-import { Switch, Route, BrowserRouter as Router } from 'react-router-dom'
+import {
+  Switch,
+  Route,
+  BrowserRouter as Router,
+  Redirect,
+} from 'react-router-dom'
 
-import UserList from './components/UserList'
 import Nav from './components/Nav'
 import Home from './pages/Home'
 import City from './pages/City'
 import Attraction from './pages/Attraction'
 import User from './pages/User'
+import ManageCategory from './pages/ManageCategory'
+
+import { AuthContext } from './contexts/AuthContext'
 
 import {
   makeStyles,
@@ -15,7 +22,21 @@ import {
   responsiveFontSizes,
 } from '@material-ui/core/styles'
 import { blue, teal, grey } from '@material-ui/core/colors'
-import { CssBaseline, Box, Container, ThemeProvider } from '@material-ui/core'
+import {
+  CssBaseline,
+  Container,
+  ThemeProvider,
+  Typography,
+} from '@material-ui/core'
+
+import moment from 'moment'
+import 'moment/locale/vi'
+import { MuiPickersUtilsProvider } from '@material-ui/pickers'
+import MomentUtils from '@date-io/moment'
+
+import jwtDecode from 'jwt-decode'
+
+moment.locale('vi')
 
 let theme = createMuiTheme({
   palette: {
@@ -48,6 +69,19 @@ let theme = createMuiTheme({
         },
       },
     },
+    MuiIcon: {
+      root: {
+        verticalAlign: 'middle',
+      },
+    },
+    MuiContainer: {
+      root: {
+        '@media (max-width: 600px)': {
+          paddingLeft: 0,
+          paddingRight: 0,
+        },
+      },
+    },
   },
   typography: {
     fontSize: 12,
@@ -70,33 +104,69 @@ const useStyles = makeStyles((theme) => ({
   container: {
     paddingTop: theme.spacing(4),
     paddingBottom: theme.spacing(4),
+    '@media (max-width: 600px)': {
+      paddingTop: theme.spacing(2),
+      paddingBottom: theme.spacing(2),
+    },
   },
 }))
 
 function App() {
   const classes = useStyles()
+  const [modalOpen, setModalOpen] = useState(false)
+  const [isLoginModal, setIsLoginModal] = useState(false)
+
+  const token = localStorage.getItem('token')
+  let user = null
+  if (token) {
+    user = jwtDecode(token)
+  }
+  const isAdmin = user && user.roles?.includes('ADMIN')
+  const handleOpen = (isLoginModal) => {
+    setIsLoginModal(isLoginModal)
+    setModalOpen(true)
+  }
+  const handleClose = () => {
+    setModalOpen(false)
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <Router>
-        <div className={classes.root}>
-          <CssBaseline />
-          <Nav></Nav>
-          <main className={classes.content}>
-            <div className={classes.appBarSpacer} />
-            <Container maxWidth="lg" className={classes.container}>
-              <Switch>
-                <Route exact path="/" component={Home} />
-                <Route exact path="/businesses" component={UserList} />
-                <Route exact path="/users" component={UserList} />
-                <Route exact path="/city/:id" component={City} />
-                <Route exact path="/attraction/:id" component={Attraction} />
-                <Route exact path="/user/:id" component={User} />
-              </Switch>
+        <AuthContext.Provider
+          value={{ user, modalOpen, isLoginModal, handleOpen, handleClose }}
+        >
+          <MuiPickersUtilsProvider utils={MomentUtils}>
+            <Typography component="div" className={classes.root}>
+              <CssBaseline />
+              <Nav></Nav>
+              <main className={classes.content}>
+                <div className={classes.appBarSpacer} />
+                <Container maxWidth="lg" className={classes.container}>
+                  <Switch>
+                    <Route exact path="/" component={Home} />
+                    <Route exact path="/city/:id" component={City} />
+                    <Route
+                      exact
+                      path="/attraction/:id"
+                      component={Attraction}
+                    />
+                    <Route exact path="/user/:id" component={User} />
+                    <Route
+                      exact
+                      path="/category"
+                      render={() =>
+                        isAdmin ? <ManageCategory /> : <Redirect to="/" />
+                      }
+                    />
+                  </Switch>
 
-              <Box pt={4}>{/* <Copyright /> */}</Box>
-            </Container>
-          </main>
-        </div>
+                  {/* <Box pt={4}><Copyright /></Box> */}
+                </Container>
+              </main>
+            </Typography>
+          </MuiPickersUtilsProvider>
+        </AuthContext.Provider>
       </Router>
     </ThemeProvider>
   )

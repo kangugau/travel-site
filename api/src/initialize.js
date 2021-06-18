@@ -7,7 +7,7 @@ export const initializeDatabase = (driver) => {
     Type: ["id"], 
     Tag:["id"],
     City: ["id"], 
-    Photo: ["url"]})`
+    Photo: ["url"]}, false)`
 
   const executeQuery = (driver) => {
     const session = driver.session()

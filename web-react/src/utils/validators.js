@@ -40,7 +40,7 @@ export function useValidator(rules) {
           validateField(field)
         })
       else {
-        validate(fields)
+        validateField(fields)
       }
     } else {
       for (const field in rules) {
@@ -48,6 +48,10 @@ export function useValidator(rules) {
       }
     }
     setErrors(newErrors)
+    for (const field in newErrors) {
+      if (newErrors[field].length) return false
+    }
+    return true
   }
   const hasErr = () => {
     for (const field in errors) {
@@ -55,5 +59,13 @@ export function useValidator(rules) {
     }
     return false
   }
-  return { errors, validate, hasErr }
+  const resetErr = () => {
+    setErrors(
+      Object.keys(rules).reduce((prev, curr) => {
+        prev[curr] = []
+        return prev
+      }, {})
+    )
+  }
+  return { errors, validate, hasErr, resetErr }
 }

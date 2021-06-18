@@ -12,9 +12,8 @@ export function verifyToken(token) {
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET)
     } catch (error) {
-      // console.log(error)
+      console.log(error)
     }
   }
-  console.log(decoded)
   return decoded
 }
