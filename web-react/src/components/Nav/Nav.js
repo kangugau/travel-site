@@ -14,9 +14,12 @@ import {
   Paper,
   Avatar,
   Menu,
-  MenuList,
+  List,
+  ListItem,
+  Collapse,
   MenuItem,
   useMediaQuery,
+  Divider,
 } from '@material-ui/core'
 import Search from '../Search'
 import clsx from 'clsx'
@@ -33,6 +36,7 @@ const useStyles = makeStyles(navCss)
 export default function Nav() {
   const classes = useStyles()
   const [open, setOpen] = useState(false)
+  const [adminCollapseOpen, setAdminCollapseOpen] = useState(true)
   const [searchBar, setSearchBar] = useState(false)
   const user = useUser()
   console.log('check token')
@@ -42,7 +46,7 @@ export default function Nav() {
     }
   }, [user])
 
-  const isAdmin = user && user.roles?.includes('ADMIN')
+  const isAdmin = user && user.role === 'ADMIN'
   const theme = useTheme()
   const xsDown = useMediaQuery(theme.breakpoints.down('xs'))
 
@@ -172,6 +176,18 @@ export default function Nav() {
                         Quản lý thể loại
                       </Link>
                     </MenuItem>
+                    <MenuItem onClick={closeAdminMenu}>
+                      <Link to="/tag">
+                        <Icon className={classes.iconButton}>style</Icon>
+                        Quản lý thẻ
+                      </Link>
+                    </MenuItem>
+                    <MenuItem onClick={closeAdminMenu}>
+                      <Link to="/user">
+                        <Icon className={classes.iconButton}>people</Icon>
+                        Quản lý người dùng
+                      </Link>
+                    </MenuItem>
                   </Menu>
                 </>
               )}
@@ -248,10 +264,66 @@ export default function Nav() {
                   </Typography>
                 </Link>
               </Box>
-              <div className={classes.seperator} />
-              <MenuList>
-                <MenuItem onClick={logout}>Logout</MenuItem>
-              </MenuList>
+              <Divider />
+              {/* <div className={classes.seperator} /> */}
+              <List>
+                <ListItem>
+                  <Icon className={classes.iconButton}>bookmarks</Icon>Đã lưu
+                </ListItem>
+                <ListItem
+                  onClick={() => {
+                    setAdminCollapseOpen(!adminCollapseOpen)
+                  }}
+                >
+                  <Icon className={classes.iconButton}>
+                    admin_panel_settings
+                  </Icon>
+                  Admin menu
+                  <Icon>
+                    {adminCollapseOpen ? 'expand_less' : 'expand_more'}
+                  </Icon>
+                </ListItem>
+                <Collapse in={adminCollapseOpen} timeout="auto" unmountOnExit>
+                  <Box paddingLeft={3}>
+                    <List>
+                      <ListItem>
+                        <Link to="/attraction/add">
+                          <Icon className={classes.iconButton}>
+                            add_location
+                          </Icon>
+                          Thêm địa điểm mới
+                        </Link>
+                      </ListItem>
+                      <ListItem>
+                        <Link to="/category">
+                          <Icon className={classes.iconButton}>category</Icon>
+                          Quản lý danh mục
+                        </Link>
+                      </ListItem>
+                      <ListItem>
+                        <Link to="/type">
+                          <Icon className={classes.iconButton}>museum</Icon>
+                          Quản lý thể loại
+                        </Link>
+                      </ListItem>
+                      <ListItem>
+                        <Link to="/tag">
+                          <Icon className={classes.iconButton}>style</Icon>
+                          Quản lý thẻ
+                        </Link>
+                      </ListItem>
+                      <ListItem>
+                        <Link to="/user">
+                          <Icon className={classes.iconButton}>people</Icon>
+                          Quản lý người dùng
+                        </Link>
+                      </ListItem>
+                    </List>
+                  </Box>
+                </Collapse>
+                <Divider />
+                <ListItem onClick={logout}>Logout</ListItem>
+              </List>
             </React.Fragment>
           )}
         </Box>

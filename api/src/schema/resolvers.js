@@ -1,4 +1,4 @@
-import { neo4jgraphql } from 'neo4j-graphql-js'
+import { neo4jgraphql, cypherQuery } from 'neo4j-graphql-js'
 import { ApolloError } from 'apollo-server'
 import crypto from 'crypto'
 import { signToken } from '../utils'
@@ -9,7 +9,7 @@ export default {
     Attraction: async (obj, params, ctx, resolveInfo) => {
       let result = await neo4jgraphql(obj, params, ctx, resolveInfo)
       if (
-        result.length &&
+        result.length > 0 &&
         Object.hasOwnProperty.call(result[0], 'ratingCount')
       ) {
         result.forEach((attraction) => {
@@ -62,6 +62,18 @@ export default {
       })
       return result
     },
+    UserCount: async (obj, params, ctx, resolveInfo) => {
+      const [queryString, queryParams] = cypherQuery(params, ctx, resolveInfo)
+      const resultsCount = await ctx.driver
+        .session()
+        .run(queryString, queryParams)
+        .then((res) => res.records.length)
+      console.log({ resultsCount })
+      return {
+        id: 'Not available in this query',
+        resultsCount: resultsCount,
+      }
+    },
   },
   Mutation: {
     CreateUser: async (obj, params, ctx, resolveInfo) => {
@@ -73,11 +85,11 @@ export default {
         .session()
         .run(`MATCH (u:User {email: "${params.email}"}) return u`)
       if (findUser.records.length > 0) {
-        throw new ApolloError('Tài khoản đã tồn tại', 200, [
+        throw new ApolloError('Email đã tồn tại', 200, [
           'This user already exists',
         ])
       }
-      params.roles = ['USER']
+      params.role = 'USER'
       return neo4jgraphql(obj, params, ctx, resolveInfo, true)
     },
     LoginUser: async (obj, params, ctx) => {
@@ -96,7 +108,7 @@ export default {
             email: result.records[0].get('u').properties.email,
             username: result.records[0].get('u').properties.username,
             displayName: result.records[0].get('u').properties.displayName,
-            roles: result.records[0].get('u').properties.roles,
+            role: result.records[0].get('u').properties.role,
           }
           const token = signToken(user)
           return { token }

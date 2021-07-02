@@ -14,8 +14,8 @@ import {
   Icon,
 } from '@material-ui/core'
 import { useQuery, gql } from '@apollo/client'
-import CategoryActions from '../components/ManageCategory/CategoryActions'
-import ActionsModal from '../components/ManageCategory/ActionsModal'
+import Actions from '../components/ManageTag/Actions'
+import ActionsModal from '../components/ManageTag/ActionsModal'
 import Loading from '../components/Loading'
 
 const useStyles = makeStyles((theme) => ({
@@ -40,9 +40,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-const GET_CATEGORIES = gql`
-  query getCategories {
-    categories: Category {
+const GET_TYPE = gql`
+  query getTags {
+    tags: Tag {
       id
       name
     }
@@ -50,7 +50,7 @@ const GET_CATEGORIES = gql`
 `
 export default function ManageCategory() {
   const classes = useStyles()
-  const { loading, data, refetch } = useQuery(GET_CATEGORIES)
+  const { loading, data, refetch } = useQuery(GET_TYPE)
   const [page, setPage] = useState(0)
   const [perPage, setPerPage] = useState(20)
   const [open, setOpen] = useState(false)
@@ -79,10 +79,10 @@ export default function ManageCategory() {
     <>
       <Box className={classes.container}>
         <Typography variant="h2" component="h1" className={classes.pageHeader}>
-          Quản lý danh mục
+          Quản lý thẻ
         </Typography>
         <Button variant="outlined" color="primary" onClick={addCategory}>
-          <Icon>add_circle_outline</Icon>Thêm danh mục
+          <Icon>add_circle_outline</Icon>Thêm thẻ
         </Button>
         <TableContainer className={classes.tableContainer}>
           <Table aria-label="simple table" stickyHeader>
@@ -101,8 +101,8 @@ export default function ManageCategory() {
                   </TableCell>
                 </TableRow>
               )}
-              {data?.categories.length > 0 &&
-                data.categories
+              {data?.tags.length > 0 &&
+                data.tags
                   .slice(page * perPage, (page + 1) * perPage)
                   .map((item, index) => (
                     <TableRow key={item.id}>
@@ -111,7 +111,7 @@ export default function ManageCategory() {
                       </TableCell>
                       <TableCell>{item.name}</TableCell>
                       <TableCell className={classes.actionsCell}>
-                        <CategoryActions
+                        <Actions
                           id={item.id}
                           editCategory={editCategory}
                           deleteCategory={deleteCategory}
@@ -119,23 +119,21 @@ export default function ManageCategory() {
                       </TableCell>
                     </TableRow>
                   ))}
-              {!loading && !data?.categories.length > 0 && (
+              {!loading && !data?.tags.length > 0 && (
                 <TableRow>
                   <TableCell colSpan={3} scope="row">
-                    <Typography align="center">
-                      Không có danh mục nào
-                    </Typography>
+                    <Typography align="center">Không có thẻ nào</Typography>
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </TableContainer>
-        {data?.categories.length > 0 && (
+        {data?.tags.length > 0 && (
           <TablePagination
             component="div"
             rowsPerPageOptions={[5, 10, 20, 50]}
-            count={data.categories.length}
+            count={data.tags.length}
             rowsPerPage={perPage}
             page={page}
             SelectProps={{
@@ -153,7 +151,7 @@ export default function ManageCategory() {
         <ActionsModal
           open={open}
           action={action}
-          category={data?.categories.find((item) => item.id === currentId)}
+          tag={data?.tags.find((item) => item.id === currentId)}
           closeModal={() => setOpen(false)}
           onActionSucceed={refetch}
         />

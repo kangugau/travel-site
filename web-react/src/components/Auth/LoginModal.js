@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
-import { Button, TextField, Box } from '@material-ui/core'
+import React, { useEffect, useState } from 'react'
+import { Button, TextField, Box, Snackbar } from '@material-ui/core'
+import Alert from '@material-ui/lab/Alert'
 import { makeStyles } from '@material-ui/core/styles'
 import { useMutation, gql } from '@apollo/client'
 import { email, required, useValidator } from '../../utils/validators'
@@ -21,6 +22,8 @@ const LOGIN = gql`
 export default function LoginModal(props) {
   const classes = useStyles()
   const [formData, setFormData] = useState({ email: '', password: '' })
+  const [messageOpen, setMessageOpen] = useState(false)
+  const [isErrorMess, setIsErrorMess] = useState('error')
   const setField = (field, value) => {
     setFormData({
       ...formData,
@@ -43,13 +46,20 @@ export default function LoginModal(props) {
     },
     ignoreResults: false,
   })
+  useEffect(() => {
+    if (loginError) {
+      setIsErrorMess(true)
+      setMessageOpen(true)
+    }
+  }, [loginError])
+
   const submit = async () => {
     validate(formData)
     if (hasErr()) return
     try {
       console.log('submit')
       let data = await login()
-      console.log(data)
+
       localStorage.setItem('token', data.data.LoginUser.token)
       props.handleClose()
       window.location.reload()
@@ -62,6 +72,20 @@ export default function LoginModal(props) {
       {loginError && (
         <Box color="error.main">Tài khoản hoặc mật khẩu không đúng</Box>
       )}
+      <Snackbar
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        open={messageOpen}
+        autoHideDuration={3000}
+        onClose={() => setMessageOpen(false)}
+      >
+        <Alert
+          variant="filled"
+          onClose={() => setMessageOpen(false)}
+          severity={isErrorMess ? 'error' : 'success'}
+        >
+          {isErrorMess ? 'Đăng nhập thất bại' : 'Đăng nhập thành công'}
+        </Alert>
+      </Snackbar>
       <TextField
         type="email"
         required

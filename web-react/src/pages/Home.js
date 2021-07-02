@@ -178,7 +178,7 @@ export default function Home() {
             </Grid>
           </Box>
         )}
-        {userData?.RecommendedAttractions?.length && (
+        {userData?.RecommendedAttractions?.length > 0 && (
           <Box py={3}>
             <Typography variant="h3">Mọi người cũng thích</Typography>
             <Grid container className={classes.gridList}>
@@ -195,7 +195,7 @@ export default function Home() {
             </Grid>
           </Box>
         )}
-        {recentSimilarsData?.Attraction?.length && (
+        {recentSimilarsData?.Attraction?.length > 0 && (
           <Box py={3}>
             <Typography variant="h3">
               Tương tự với {recentSimilarsData?.Attraction[0]?.name}

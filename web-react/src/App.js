@@ -13,6 +13,9 @@ import City from './pages/City'
 import Attraction from './pages/Attraction'
 import User from './pages/User'
 import ManageCategory from './pages/ManageCategory'
+import ManageType from './pages/ManageType'
+import ManageTag from './pages/ManageTag'
+import ManageUser from './pages/ManageUser'
 
 import { AuthContext } from './contexts/AuthContext'
 
@@ -121,7 +124,7 @@ function App() {
   if (token) {
     user = jwtDecode(token)
   }
-  const isAdmin = user && user.roles?.includes('ADMIN')
+  const isAdmin = user && user.role === 'ADMIN'
   const handleOpen = (isLoginModal) => {
     setIsLoginModal(isLoginModal)
     setModalOpen(true)
@@ -157,6 +160,27 @@ function App() {
                       path="/category"
                       render={() =>
                         isAdmin ? <ManageCategory /> : <Redirect to="/" />
+                      }
+                    />
+                    <Route
+                      exact
+                      path="/type"
+                      render={() =>
+                        isAdmin ? <ManageType /> : <Redirect to="/" />
+                      }
+                    />
+                    <Route
+                      exact
+                      path="/tag"
+                      render={() =>
+                        isAdmin ? <ManageTag /> : <Redirect to="/" />
+                      }
+                    />
+                    <Route
+                      exact
+                      path="/user"
+                      render={() =>
+                        isAdmin ? <ManageUser /> : <Redirect to="/" />
                       }
                     />
                   </Switch>

@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
-import { Button, TextField, Box } from '@material-ui/core'
+import React, { useEffect, useState } from 'react'
+import { Button, TextField, Box, Snackbar } from '@material-ui/core'
+import Alert from '@material-ui/lab/Alert'
 import { makeStyles } from '@material-ui/core/styles'
 import { useMutation, gql } from '@apollo/client'
 import { email, required, equal, useValidator } from '../../utils/validators'
@@ -27,6 +28,8 @@ export default function RegisterModal(props) {
     username: '',
     passwordConfirm: '',
   })
+  const [messageOpen, setMessageOpen] = useState(false)
+  const [isErrorMess, setIsErrorMess] = useState('error')
   const setField = (field, value) => {
     setFormData({
       ...formData,
@@ -58,13 +61,22 @@ export default function RegisterModal(props) {
     },
     ignoreResults: false,
   })
+  useEffect(() => {
+    if (registerError) {
+      setIsErrorMess(true)
+      setMessageOpen(true)
+    }
+  }, [registerError])
   const submit = async () => {
     validate(formData)
     if (hasErr()) return
     try {
-      let data = await register()
-      console.log(data)
-      props.handleClose()
+      await register()
+      setIsErrorMess(false)
+      setMessageOpen(true)
+      setTimeout(() => {
+        props.handleClose()
+      }, 1000)
     } catch (error) {
       console.log(error)
     }
@@ -76,6 +88,20 @@ export default function RegisterModal(props) {
           {registerError.message}
         </Box>
       )}
+      <Snackbar
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        open={messageOpen}
+        autoHideDuration={3000}
+        onClose={() => setMessageOpen(false)}
+      >
+        <Alert
+          variant="filled"
+          onClose={() => setMessageOpen(false)}
+          severity={isErrorMess ? 'error' : 'success'}
+        >
+          {isErrorMess ? 'Đăng ký thất bại' : 'Đăng ký thành công'}
+        </Alert>
+      </Snackbar>
       <TextField
         type="email"
         required

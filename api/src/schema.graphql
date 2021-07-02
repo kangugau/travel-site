@@ -106,11 +106,11 @@ type User {
   id: ID!
   email: String
   password: String @hide
-  username: String!
-  displayName: String!
+  username: String
+  displayName: String
   avatar: Photo @relation(name: "HAS_AVATAR", direction: OUT)
   hometown: City @relation(name:"LIVE_IN", direction: OUT)
-  roles: [Role]
+  role: Role
   reviews: [Review] @relation(name: "WROTE", direction: OUT)
   recentViews(first: Int = 10, offset: Int = 0): [Attraction] @cypher(statement:"""
     MATCH (this)-[r:VIEWED]->(a:Attraction) 
@@ -118,6 +118,7 @@ type User {
     ORDER BY r.lastViewedDate DESC SKIP toInteger($offset) LIMIT toInteger($first)
   """)
   savedAttractions: [Attraction] @relation(name: "SAVED", direction: OUT)
+  resultsCount: Int
 }
 
 type LoginUser {
@@ -157,7 +158,7 @@ type Query {
   """)
 
   HotAttractions(first: Int = 10): [Attraction]! @cypher(statement:"""
-    MATCH (a:Attraction)<--(r:Review) where duration.inMonths(r.createdDate, date()).months < 6
+    MATCH (a:Attraction)<--(r:Review) where duration.inMonths(r.createdDate, date()).months < 7
     with a, count(r) AS reviews 
     return a ORDER BY reviews DESC LIMIT toInteger($first)
   """)
@@ -168,6 +169,8 @@ type Query {
   """)
 
   AttractionsNearBy(attractionId: ID!, first: Int = 10): [NearByAttraction]
+
+  UserCount: User
 }
 
 type Mutation {

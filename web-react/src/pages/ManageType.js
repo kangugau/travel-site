@@ -14,8 +14,8 @@ import {
   Icon,
 } from '@material-ui/core'
 import { useQuery, gql } from '@apollo/client'
-import CategoryActions from '../components/ManageCategory/CategoryActions'
-import ActionsModal from '../components/ManageCategory/ActionsModal'
+import Actions from '../components/ManageType/Actions'
+import ActionsModal from '../components/ManageType/ActionsModal'
 import Loading from '../components/Loading'
 
 const useStyles = makeStyles((theme) => ({
@@ -40,36 +40,36 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-const GET_CATEGORIES = gql`
-  query getCategories {
-    categories: Category {
+const GET_TYPE = gql`
+  query getTypes {
+    types: Type {
       id
       name
     }
   }
 `
-export default function ManageCategory() {
+export default function ManageType() {
   const classes = useStyles()
-  const { loading, data, refetch } = useQuery(GET_CATEGORIES)
+  const { loading, data, refetch } = useQuery(GET_TYPE)
   const [page, setPage] = useState(0)
   const [perPage, setPerPage] = useState(20)
   const [open, setOpen] = useState(false)
   const [action, setAction] = useState('add')
   const [currentId, setCurrentId] = useState(null)
 
-  const addCategory = () => {
+  const addType = () => {
     setCurrentId(null)
     setAction('add')
     setOpen(true)
   }
 
-  const editCategory = (id) => {
+  const editType = (id) => {
     setCurrentId(id)
     setAction('edit')
     setOpen(true)
   }
 
-  const deleteCategory = (id) => {
+  const deleteType = (id) => {
     setCurrentId(id)
     setAction('delete')
     setOpen(true)
@@ -79,10 +79,10 @@ export default function ManageCategory() {
     <>
       <Box className={classes.container}>
         <Typography variant="h2" component="h1" className={classes.pageHeader}>
-          Quản lý danh mục
+          Quản lý thể loại
         </Typography>
-        <Button variant="outlined" color="primary" onClick={addCategory}>
-          <Icon>add_circle_outline</Icon>Thêm danh mục
+        <Button variant="outlined" color="primary" onClick={addType}>
+          <Icon>add_circle_outline</Icon>Thêm thể loại
         </Button>
         <TableContainer className={classes.tableContainer}>
           <Table aria-label="simple table" stickyHeader>
@@ -101,8 +101,8 @@ export default function ManageCategory() {
                   </TableCell>
                 </TableRow>
               )}
-              {data?.categories.length > 0 &&
-                data.categories
+              {data?.types.length > 0 &&
+                data.types
                   .slice(page * perPage, (page + 1) * perPage)
                   .map((item, index) => (
                     <TableRow key={item.id}>
@@ -111,19 +111,19 @@ export default function ManageCategory() {
                       </TableCell>
                       <TableCell>{item.name}</TableCell>
                       <TableCell className={classes.actionsCell}>
-                        <CategoryActions
+                        <Actions
                           id={item.id}
-                          editCategory={editCategory}
-                          deleteCategory={deleteCategory}
+                          editType={editType}
+                          deleteType={deleteType}
                         />
                       </TableCell>
                     </TableRow>
                   ))}
-              {!loading && !data?.categories.length > 0 && (
+              {!loading && !data?.types.length > 0 && (
                 <TableRow>
                   <TableCell colSpan={3} scope="row">
                     <Typography align="center">
-                      Không có danh mục nào
+                      Không có thể loại nào
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -131,11 +131,11 @@ export default function ManageCategory() {
             </TableBody>
           </Table>
         </TableContainer>
-        {data?.categories.length > 0 && (
+        {data?.types.length > 0 && (
           <TablePagination
             component="div"
             rowsPerPageOptions={[5, 10, 20, 50]}
-            count={data.categories.length}
+            count={data.types.length}
             rowsPerPage={perPage}
             page={page}
             SelectProps={{
@@ -153,7 +153,7 @@ export default function ManageCategory() {
         <ActionsModal
           open={open}
           action={action}
-          category={data?.categories.find((item) => item.id === currentId)}
+          type={data?.types.find((item) => item.id === currentId)}
           closeModal={() => setOpen(false)}
           onActionSucceed={refetch}
         />
